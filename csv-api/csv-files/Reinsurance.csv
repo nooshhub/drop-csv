@@ -1,0 +1,25 @@
+utf-8,,,,,,
+UniqueName,Setid,Name,cus_REINS,cus_DESCRSHORT,cus_REINS_DESCR_,cus_SETID_REINS_
+0,UHGID,00:No Pool,0,No Pool,00:No Pool,UHGID:00
+60,UHGID,60:Assumed Unaffiliated,60,Assmd Unaf,60:Assumed Unaffiliated,UHGID:60
+62,UHGID,62:Assumption,62,Assumption,62:Assumption,UHGID:62
+65,UHGID,65:Assumed Affiliated,65,Assmd Aff,65:Assumed Affiliated,UHGID:65
+AA,UHGID,AA:T&MST-PointBegLiabYes-PerfPYes,AA,OPT 606 AA,AA:T&MST-PointBegLiabYes-PerfPYes,UHGID:AA
+AB,UHGID,AB:T&MST-PointBegLiabYes-PerfPNo,AB,OPT 606 AB,AB:T&MST-PointBegLiabYes-PerfPNo,UHGID:AB
+AE,UHGID,AE:T&MST-OverBegLiabYes-PerfPYes,AE,OPT 606 AE,AE:T&MST-OverBegLiabYes-PerfPYes,UHGID:AE
+AF,UHGID,AF:T&MST-OverBegLiabYes-PerfPNo,AF,OPT 606 AF,AF:T&MST-OverBegLiabYes-PerfPNo,UHGID:AF
+AG,UHGID,AG:T&MST-OverBegLiabNo-PerfPYes,AG,OPT 606 AG,AG:T&MST-OverBegLiabNo-PerfPYes,UHGID:AG
+BA,UHGID,BA:UseLT-PointBegLiabNo-PerfPYes,BA,OPT 606 BA,BA:UseLT-PointBegLiabNo-PerfPYes,UHGID:BA
+BB,UHGID,BB:UseLT-PointBegLiabNo-PerfPNo,BB,OPT 606 BB,BB:UseLT-PointBegLiabNo-PerfPNo,UHGID:BB
+BE,UHGID,BE:UseLT-OverBegLiabNo-PerfPYes,BE,OPT 606 BE,BE:UseLT-OverBegLiabNo-PerfPYes,UHGID:BE
+BF,UHGID,BF:UseLT-OverBegLiabNo-PerfPNo,BF,OPT 606 BF,BF:UseLT-OverBegLiabNo-PerfPNo,UHGID:BF
+CA,UHGID,CA:PMPMST-OverBegLiabYes-PerfPYes,CA,OPT 606 CA,CA:PMPMST-OverBegLiabYes-PerfPYes,UHGID:CA
+CB,UHGID,CB:PMPMST-OverBegLiabYes-PerfPNo,CB,OPT 606 CB,CB:PMPMST-OverBegLiabYes-PerfPNo,UHGID:CB
+CC,UHGID,CC:PMPMST-OverBegLiabNo-PerfPYes,CC,OPT 606 CC,CC:PMPMST-OverBegLiabNo-PerfPYes,UHGID:CC
+CF,UHGID,CF:PMPMLT-PointBegLiabYes-PerfPNo,CF,OPT 606 CF,CF:PMPMLT-PointBegLiabYes-PerfPNo,UHGID:CF
+CG,UHGID,CG:PMPMLT-PointBegLiabNo-PerfPYes,CG,OPT 606 CG,CG:PMPMLT-PointBegLiabNo-PerfPYes,UHGID:CG
+CH,UHGID,CH:PMPMLT-PointBegLiabNo-PerfPNo,CH,OPT 606 CH,CH:PMPMLT-PointBegLiabNo-PerfPNo,UHGID:CH
+CI,UHGID,CI:PMPMLT-OverBegLiabYes-PerfPYes,CI,OPT 606 CI,CI:PMPMLT-OverBegLiabYes-PerfPYes,UHGID:CI
+CL,UHGID,CL:PMPMLT-OverBegLiabNo-PerfPNo,CL,OPT 606 CL,CL:PMPMLT-OverBegLiabNo-PerfPNo,UHGID:CL
+NA,UHGID,NA:NA-Insurance Accounting-ASC944,NA,NA-RevRec,NA:NA-Insurance Accounting-ASC944,UHGID:NA
+NB,UHGID,NB:NA-Investment Income-ASC 320,NB,OPT 606 NB,NB:NA-Investment Income-ASC 320,UHGID:NB
