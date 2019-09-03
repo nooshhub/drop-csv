@@ -27,6 +27,7 @@ public class CsvResource {
     @PostMapping(value = "/upload")
     public CsvVo uploadCsv(
             @RequestParam("file") MultipartFile file,
+            @RequestParam("csvName") String[] csvName,
             @RequestParam("headers") String[] headers,
             @RequestParam(value = "skipCount", required = false, defaultValue = "0")
                     int skipCount) throws IOException {

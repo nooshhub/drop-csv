@@ -1,5 +1,6 @@
 package com.noosh.csvapi;
 
+import com.noosh.csvapi.dao.CsvHeader;
 import com.noosh.csvapi.dao.Customer;
 import com.noosh.csvapi.service.StorageProperties;
 import com.zaxxer.hikari.HikariDataSource;
@@ -63,19 +64,11 @@ public class CsvApiApplication {
         log.info("Querying for " + csvHeaderTableName + " records");
         jdbcTemplate.query(
                 "SELECT id, header_name, column_name FROM " + csvHeaderTableName,
-//				(rs, rowNum) -> new Customer(
-//						rs.getLong("id"),
-//						rs.getString("first_name"),
-//						rs.getString("last_name")
-//				)
-                (rs, rowNum) -> {
-                    log.info(String.format("id %s, header_name %s, column_name %s",
-                            rs.getLong("id"),
-                            rs.getString("header_name"),
-                            rs.getString("column_name")));
-                    return null;
-                }
-        ); //.forEach(customer -> log.info(customer.toString()));
+                (rs, rowNum) -> new CsvHeader(rs.getLong("id"),
+                                rs.getString("header_name"),
+                                rs.getString("column_name"))
+
+        ).forEach(csvHeader -> log.info(csvHeader.toString()));
 
         String csvDataTableName = "csv_data_" + csvName;
         jdbcTemplate.execute("DROP TABLE " + csvDataTableName + " IF EXISTS");
