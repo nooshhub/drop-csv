@@ -3,10 +3,7 @@ package com.noosh.csvapi.resouce;
 import com.noosh.csvapi.service.CsvService;
 import com.noosh.csvapi.vo.CsvVo;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
 
@@ -26,8 +23,8 @@ public class CsvResource {
 
     @PostMapping(value = "/upload")
     public CsvVo uploadCsv(
-            @RequestParam("file") MultipartFile file,
-            @RequestParam("csvName") String[] csvName,
+            @RequestPart("file") MultipartFile file,
+            @RequestParam("csvName") String csvName,
             @RequestParam("headers") String[] headers,
             @RequestParam(value = "skipCount", required = false, defaultValue = "0")
                     int skipCount) throws IOException {
