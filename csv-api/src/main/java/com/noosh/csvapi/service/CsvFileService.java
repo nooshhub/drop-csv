@@ -23,22 +23,14 @@ import java.util.*;
 public class CsvFileService {
 
     private final Path rootLocation;
+    private final CsvDataService csvDataService;
 
     @Autowired
-    public CsvFileService(StorageProperties properties) {
+    public CsvFileService(StorageProperties properties, CsvDataService csvDataService) {
         this.rootLocation = Paths.get(properties.getLocation());
+        this.csvDataService = csvDataService;
     }
 
-
-//    @PostConstruct
-//    public void init() {
-//        File file = new File("I:\\cloud\\drop-csv\\csv-api\\csv-files\\Reinsurance.csv");
-//
-//        String[] headers = {"UniqueName", "Setid", "Name",
-//                "cus_REINS", "cus_DESCRSHORT", "cus_REINS_DESCR_", "cus_SETID_REINS_"};
-//
-//        parseExcelCsv(file, headers, 1);
-//    }
 
     public void init() {
         try {
@@ -71,8 +63,7 @@ public class CsvFileService {
         }
     }
 
-//    public CsvVo parseExcelCsv(File file, String[] headers, int skipLineCount) {
-    public CsvVo parseExcelCsv(MultipartFile file, String[] headers, int skipLineCount) {
+    public void parseExcelCsv(MultipartFile file, String csvName, String[] headers, int skipLineCount) {
         BufferedReader in = null;
         try {
 //            in = new BufferedReader(new FileReader(file));
@@ -106,24 +97,21 @@ public class CsvFileService {
             // TODO: return a file not found message
         }
 
-        List<List<String>> lines = new ArrayList<>();
-
+        List<Object[]> batchLine = new ArrayList<>();
         if (records != null) {
             for (CSVRecord record : records) {
                 List<String> line = new ArrayList<>(headers.length);
-                for (String header: headers) {
+                for (String header : headers) {
                     line.add(record.get(header));
                 }
-
-                // TODO: batch insert into database
-                lines.add(line);
+                batchLine.add(line.toArray());
+                // TODO: batch update per batchSize = 20;
             }
+
+            csvDataService.insertIntoDataTable(csvName, headers.length, batchLine);
+
         }
 
-        CsvVo csvVo = new CsvVo();
-        csvVo.setHeaders(headers);
-        csvVo.setLines(lines);
-        return csvVo;
     }
 
 

@@ -60,6 +60,26 @@ public class CsvDataService {
                 + ")");
     }
 
+    public void insertIntoDataTable(String csvName, int columnSize, List<Object[]> batchLine) {
+        String csvDataTableName = "csv_data_" + csvName;
+        StringBuilder columnNameSb = new StringBuilder();
+        StringBuilder columnParamSb = new StringBuilder();
+        for (int i = 0; i < columnSize; i++) {
+            columnNameSb.append("attr_" + i + ",");
+
+            columnParamSb.append("?,");
+        }
+
+        String insertColumns = columnNameSb.toString().substring(0, columnNameSb.toString().lastIndexOf(","));
+        String insertParams = columnParamSb.toString().substring(0, columnParamSb.toString().lastIndexOf(","));
+
+        jdbcTemplate.batchUpdate("INSERT INTO " + csvDataTableName + "(" +
+                insertColumns +
+                ") VALUES (" +
+                insertParams +
+                ")", batchLine);
+    }
+
     public CsvSearchResultVo searchCsv(String csvName) {
 
         String csvHeaderTableName = "csv_header_" + csvName;
@@ -79,7 +99,7 @@ public class CsvDataService {
                 (rs, rowNum) -> {
                     Map<String, String> csvLienData = new HashMap<>();
                     csvLienData.put("id", rs.getLong("id") + "");
-                    for (CsvHeader csvHeader:csvHeaders) {
+                    for (CsvHeader csvHeader : csvHeaders) {
                         csvLienData.put(csvHeader.getColumnName(), rs.getString(csvHeader.getColumnName()));
                     }
                     csvData.add(csvLienData);
