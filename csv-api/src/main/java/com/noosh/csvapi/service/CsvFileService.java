@@ -20,12 +20,12 @@ import java.util.*;
  * @since 0.0.1
  */
 @Service
-public class CsvService {
+public class CsvFileService {
 
     private final Path rootLocation;
 
     @Autowired
-    public CsvService(StorageProperties properties) {
+    public CsvFileService(StorageProperties properties) {
         this.rootLocation = Paths.get(properties.getLocation());
     }
 
@@ -126,7 +126,5 @@ public class CsvService {
         return csvVo;
     }
 
-    public void searchCsv(String csvIndexName) {
 
-    }
 }
