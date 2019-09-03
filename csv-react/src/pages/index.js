@@ -1,5 +1,6 @@
 
 import { Upload, Icon, message, Table } from 'antd';
+import Link from 'umi/link';
 
 const { Dragger } = Upload;
 
@@ -21,52 +22,6 @@ const props = {
   },
   beforeUpload: beforeUpload
 };
-
-function beforeUpload(file) {
-  const isCsv = file.type === 'application/vnd.ms-excel';
-  if (!isCsv) {
-    message.error('You can only upload csv file!');
-  }
-  // const isLt2M = file.size / 1024 / 1024 < 2;
-  // if (!isLt2M) {
-  //   message.error('Image must smaller than 2MB!');
-  // }
-  // return isCsv && isLt2M;
-
-  // TODO:
-  // if we not limit here, and show the top 10 rows of data,
-  // how do we do that
-
-  console.log(file);
-  if (typeof (FileReader) !== 'undefined') {    //H5
-    var reader = new FileReader();
-    reader.readAsText(file);            //以文本格式读取
-    // reader.readAsArrayBuffer(file);            //以文本格式读取
-    
-    // TODO: limit the load progress at 1000 bytes
-
-    reader.onload = function (evt) {
-      var data = evt.target.result;        //读到的数据
-      var lineBreakIndex = data.indexOf("\n");
-      console.log(data.substr(0, lineBreakIndex));
-      // Get Line breaker and read line by line, until we hit the end
-      // and only show the first 4, right.
-
-      for (let i = 0; i < 3; i++) {
-        console.log(i);
-      }
-
-      console.log(data);
-      // console.log(data.byteLength);
-      // var view   = new DataView(data, 0, 200);
-      // console.log(view.byteLength);
-    }
-  } else {
-    message.error("IE9及以下浏览器不支持，请使用Chrome或Firefox浏览器");
-  }
-
-  return isCsv;
-}
 
 const dataSource = [
   {
@@ -101,10 +56,75 @@ const columns = [
   },
 ];
 
+const headerPosition = 0;
+
+function beforeUpload(file) {
+  const isCsv = file.type === 'application/vnd.ms-excel';
+  if (!isCsv) {
+    message.error('You can only upload csv file!');
+  }
+
+  if (typeof (FileReader) !== 'undefined') {    //H5
+    var reader = new FileReader();
+
+    reader.onload = function (evt) {
+      var data = evt.target.result;
+      // By lines
+      var lines = this.result.split('\n');
+
+      let headerLine = lines[headerPosition];
+      const headers = headerLine.split(",");
+      for (let [i, header] of headers.entries()) {
+        columns.push(
+          {
+            title: header,
+            dataIndex: i,
+            key: header,
+          }
+        );
+      }
+      console.log(columns);
+
+      const limitedLinesCount = lines.length - 1;
+      const lineDataStartIndex = headerPosition + 1;
+      for (var dataLineIndex = lineDataStartIndex; dataLineIndex < limitedLinesCount; dataLineIndex++) {
+        const dataLine = lines[dataLineIndex];
+        const dataArr = dataLine.split(",");
+        let data = {
+          key: dataLineIndex,
+        }
+
+        for (let [i, header] of headers.entries()) {
+          data[i] = dataArr[i];
+        }
+
+        dataSource.push(data);
+      }
+      console.log(dataSource);
+
+      // TODO: now we have the columns, datasource, how do we render the table with them
+      // this time you will need to get more familiar with umi and dva
+
+    }
+
+    // limit file to 1024 for preview
+    reader.readAsText(file.slice(0, 1024));
+
+  } else {
+    message.error("IE9及以下浏览器不支持，请使用Chrome或Firefox浏览器");
+  }
+
+  return isCsv;
+}
+
+
 
 export default function () {
   return (
-    <div>
+    <div className="container">
+      <div className="menu">
+        <Link to="products">Products</Link>
+      </div>
       <Dragger {...props}>
         <p className="ant-upload-drag-icon">
           <Icon type="inbox" />
