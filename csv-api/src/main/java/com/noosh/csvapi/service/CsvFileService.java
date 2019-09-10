@@ -115,9 +115,16 @@ public class CsvFileService {
 
                 // batch update with batchSize
                 if(lineCount == batchSize) {
+                    // batch update
                     csvDataService.insertIntoDataTable(csvName, headers.length, batchLine);
+
+                    // reset count and batchLine
                     lineCount = 0;
                     batchLine = new ArrayList<>(batchSize);
+
+                    // this record should be add to batchLine too
+                    lineCount++;
+                    batchLine.add(line.toArray());
                 } else if(lineCount < batchSize) {
                     batchLine.add(line.toArray());
                 }
