@@ -124,7 +124,7 @@ public class CsvFileService {
             }
 
             // process rest of data
-            if(batchLine.get(0) != null) {
+            if(lineCount > 0) {
                 csvDataService.insertIntoDataTable(csvName, headers.length, batchLine);
             }
 
