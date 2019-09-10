@@ -24,6 +24,12 @@ public class CsvResource {
     @Autowired
     private CsvDataService csvDataService;
 
+    /**
+     * TODO:
+     * 1. we can use headerLineNum to replace skipCount, and read headerLine and get headers
+     * 2. we will need fileShardIndex, when it's 0, we will read header and create header table
+     * 3. csvName should use file name as default, but the user can change it, will check if it is exist
+     */
     @PostMapping(value = "/upload")
     public Map<String, String> uploadCsv(
             @RequestPart("file") MultipartFile file,
