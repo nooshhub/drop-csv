@@ -97,19 +97,39 @@ public class CsvFileService {
             // TODO: return a file not found message
         }
 
-        List<Object[]> batchLine = new ArrayList<>();
         if (records != null) {
+            // TODO: batchSize
+            // different DB has different optimal size,
+            // like mysql https://dev.mysql.com/doc/refman/5.6/en/server-system-variables.html#sysvar_max_allowed_packet
+            int batchSize = 10; // TODO: set as 1000 or by different DB's optimal size, how to calculate it, write a script to test it
+
+            int lineCount = 0;
+            List<Object[]> batchLine = new ArrayList<>(batchSize);
+
             for (CSVRecord record : records) {
                 List<String> line = new ArrayList<>(headers.length);
                 for (String header : headers) {
                     line.add(record.get(header));
                 }
-                batchLine.add(line.toArray());
-                // TODO: batch update per batchSize = 20;
+                lineCount++;
+
+                // batch update with batchSize
+                if(lineCount == batchSize) {
+                    csvDataService.insertIntoDataTable(csvName, headers.length, batchLine);
+                    lineCount = 0;
+                    batchLine = new ArrayList<>(batchSize);
+                } else if(lineCount < batchSize) {
+                    batchLine.add(line.toArray());
+                }
             }
 
-            csvDataService.insertIntoDataTable(csvName, headers.length, batchLine);
+            // process rest of data
+            if(batchLine.get(0) != null) {
+                csvDataService.insertIntoDataTable(csvName, headers.length, batchLine);
+            }
 
+        } else {
+            // TODO: no data message
         }
 
     }
