@@ -1,0 +1,25 @@
+utf-8,,,,,,
+UniqueName,Setid,Name,cus_REINS,cus_DESCRSHORT,cus_REINS_DESCR_,cus_SETID_REINS_
+0,ReactID,00:No Pool,0,No Pool,00:No Pool,ReactID:00
+60,ReactID,60:Assumed Unaffiliated,60,Assmd Unaf,60:Assumed Unaffiliated,ReactID:60
+62,ReactID,62:Assumption,62,Assumption,62:Assumption,ReactID:62
+65,ReactID,65:Assumed Affiliated,65,Assmd Aff,65:Assumed Affiliated,ReactID:65
+AA,ReactID,AA:T&MST-PointBegLiabYes-PerfPYes,AA,OPT 606 AA,AA:T&MST-PointBegLiabYes-PerfPYes,ReactID:AA
+AB,ReactID,AB:T&MST-PointBegLiabYes-PerfPNo,AB,OPT 606 AB,AB:T&MST-PointBegLiabYes-PerfPNo,ReactID:AB
+AE,ReactID,AE:T&MST-OverBegLiabYes-PerfPYes,AE,OPT 606 AE,AE:T&MST-OverBegLiabYes-PerfPYes,ReactID:AE
+AF,ReactID,AF:T&MST-OverBegLiabYes-PerfPNo,AF,OPT 606 AF,AF:T&MST-OverBegLiabYes-PerfPNo,ReactID:AF
+AG,ReactID,AG:T&MST-OverBegLiabNo-PerfPYes,AG,OPT 606 AG,AG:T&MST-OverBegLiabNo-PerfPYes,ReactID:AG
+BA,ReactID,BA:UseLT-PointBegLiabNo-PerfPYes,BA,OPT 606 BA,BA:UseLT-PointBegLiabNo-PerfPYes,ReactID:BA
+BB,ReactID,BB:UseLT-PointBegLiabNo-PerfPNo,BB,OPT 606 BB,BB:UseLT-PointBegLiabNo-PerfPNo,ReactID:BB
+BE,ReactID,BE:UseLT-OverBegLiabNo-PerfPYes,BE,OPT 606 BE,BE:UseLT-OverBegLiabNo-PerfPYes,ReactID:BE
+BF,ReactID,BF:UseLT-OverBegLiabNo-PerfPNo,BF,OPT 606 BF,BF:UseLT-OverBegLiabNo-PerfPNo,ReactID:BF
+CA,ReactID,CA:PMPMST-OverBegLiabYes-PerfPYes,CA,OPT 606 CA,CA:PMPMST-OverBegLiabYes-PerfPYes,ReactID:CA
+CB,ReactID,CB:PMPMST-OverBegLiabYes-PerfPNo,CB,OPT 606 CB,CB:PMPMST-OverBegLiabYes-PerfPNo,ReactID:CB
+CC,ReactID,CC:PMPMST-OverBegLiabNo-PerfPYes,CC,OPT 606 CC,CC:PMPMST-OverBegLiabNo-PerfPYes,ReactID:CC
+CF,ReactID,CF:PMPMLT-PointBegLiabYes-PerfPNo,CF,OPT 606 CF,CF:PMPMLT-PointBegLiabYes-PerfPNo,ReactID:CF
+CG,ReactID,CG:PMPMLT-PointBegLiabNo-PerfPYes,CG,OPT 606 CG,CG:PMPMLT-PointBegLiabNo-PerfPYes,ReactID:CG
+CH,ReactID,CH:PMPMLT-PointBegLiabNo-PerfPNo,CH,OPT 606 CH,CH:PMPMLT-PointBegLiabNo-PerfPNo,ReactID:CH
+CI,ReactID,CI:PMPMLT-OverBegLiabYes-PerfPYes,CI,OPT 606 CI,CI:PMPMLT-OverBegLiabYes-PerfPYes,ReactID:CI
+CL,ReactID,CL:PMPMLT-OverBegLiabNo-PerfPNo,CL,OPT 606 CL,CL:PMPMLT-OverBegLiabNo-PerfPNo,ReactID:CL
+NA,ReactID,NA:NA-Insurance Accounting-ASC944,NA,NA-RevRec,NA:NA-Insurance Accounting-ASC944,ReactID:NA
+NB,ReactID,NB:NA-Investment Income-ASC 320,NB,OPT 606 NB,NB:NA-Investment Income-ASC 320,ReactID:NB
