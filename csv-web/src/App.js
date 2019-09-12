@@ -128,6 +128,7 @@ class App extends Component {
           columns={columns} />
 
         <Button type="primary">Upload</Button>
+        <Button type="primary">Test</Button>
       </div>
     );
   }
