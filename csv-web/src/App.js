@@ -6,23 +6,22 @@ import React, { Component } from 'react';
  * 1. upload a csv
  * 2. preview top 10 rows of data
  * 3. choose a line as header
- * 4. click upload
- * 5. post file and headerLineNum
+ * 4. click upload and post file and headerLineNum
  */
 
 const { Dragger } = Upload;
 
-const columns = [];
-const dataSource = [];
-
-
 class App extends Component {
-
-  state = {
-    selectedRowKeys: [0],
-    columns,
-    dataSource,
-  };
+  constructor(props) {
+    super(props);
+    this.state = {
+      selectedRowKeys: [0],
+      columns: [],
+      dataSource: [],
+    };
+    this.beforeUpload = this.beforeUpload.bind(this); // properly bound once
+  }
+  
 
   /**
    * only select the lastest selected one
@@ -45,13 +44,15 @@ class App extends Component {
     if (typeof (FileReader) !== 'undefined') {    //H5
       var reader = new FileReader();
 
-      reader.onload = function (evt) {
+      reader.onload = (evt) => {
         var data = evt.target.result;
 
-        // By lines
+        // lines
         var lines = data.split('\n');
 
         // get the first line, and preview top 10 data
+        const columns=[];
+        const dataSource = [];
         const columnCount = lines[0].split(",").length;
         for (let columnIndex = 0; columnIndex < columnCount; columnIndex++) {
           columns.push(
@@ -61,6 +62,7 @@ class App extends Component {
             },
           )
         }
+
         for (let rowIndex = 0; rowIndex < 10; rowIndex++) {
           let line = {};
           line['key'] = rowIndex;
@@ -73,13 +75,10 @@ class App extends Component {
           dataSource.push(line);
         }
 
-        // How do we update the columns and dataSource
-        // this.setState({
-        //   columns: columns,
-        //   dataSource: dataSource,
-        // });
-        console.log(columns);
-        console.log(dataSource);
+        this.setState({
+          columns: columns,
+          dataSource: dataSource,
+        });
 
       }
 
@@ -96,7 +95,7 @@ class App extends Component {
 
   render() {
 
-    const { selectedRowKeys } = this.state;
+    const { selectedRowKeys, dataSource, columns } = this.state;
 
     const rowSelection = {
       selectedRowKeys,
@@ -121,12 +120,12 @@ class App extends Component {
           <p className="ant-upload-hint">
             Support for a single or bulk upload. Strictly prohibit from uploading company data or other
             band files
-        </p>
+          </p>
         </Dragger>
 
         <Table rowSelection={rowSelection}
-          dataSource={this.state.dataSource}
-          columns={this.state.columns} />
+          dataSource={dataSource}
+          columns={columns} />
 
         <Button type="primary">Upload</Button>
       </div>
