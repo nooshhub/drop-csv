@@ -99,27 +99,28 @@ class App extends Component {
   }
 
   handleUpload = () => {
-    const { fileList } = this.state;
+    const { fileList, selectedRowKeys } = this.state;
     const formData = new FormData();
 
-    fileList.forEach(file => {
-      formData.append('files[]', file);
-    });
+    formData.append('file', fileList[0]);
+    formData.append('headerLineNum', selectedRowKeys[0]);
 
     this.setState({
       uploading: true,
     })
 
+    const uploadServerHost = 'http://localhost:8080';
     reqwest({
-      url: 'https://www.mocky.io/v2/5cc8019d300000980a055e76',
+      url: uploadServerHost + '/csv/upload',
       method: 'post',
       processData: false,
       data: formData,
-      success: () => {
+      success: (data) => {
+
         this.setState({
           fileList: [],
           uploading: false,
-          testLink: 'todo',
+          testLink: uploadServerHost + data.searchUrl,
         });
         message.success('upload successfuly');
       },

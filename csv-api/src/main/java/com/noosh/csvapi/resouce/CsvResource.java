@@ -15,6 +15,7 @@ import java.util.Map;
  * @author Neal Shan
  * @since 0.0.1
  */
+@CrossOrigin
 @RestController
 @RequestMapping("/csv")
 public class CsvResource {
@@ -33,12 +34,10 @@ public class CsvResource {
     @PostMapping(value = "/upload")
     public Map<String, String> uploadCsv(
             @RequestPart("file") MultipartFile file,
-            @RequestParam("csvName") String csvName,
-            @RequestParam("headers") String[] headers,
-            @RequestParam(value = "skipCount", required = false, defaultValue = "0")
+            @RequestParam(value = "headerLineNum", required = false, defaultValue = "0")
                     int skipCount) {
-        csvName = "uhg";
-        headers = new String[]{"UniqueName", "Setid", "Name", "cus_REINS", "cus_DESCRSHORT", "cus_REINS_DESCR_", "cus_SETID_REINS_"};
+        String csvName = "uhg";
+        String[] headers = new String[]{"UniqueName", "Setid", "Name", "cus_REINS", "cus_DESCRSHORT", "cus_REINS_DESCR_", "cus_SETID_REINS_"};
 
         // create table
         csvDataService.createCsvHeaderAndDataTable(csvName, headers);
