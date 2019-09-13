@@ -23,7 +23,7 @@ class App extends Component {
       dataSource: [],
       fileList: [],
       uploading: false,
-      testLink: null,
+      searchLink: null,
     };
     this.beforeUpload = this.beforeUpload.bind(this); // properly bound once
   }
@@ -120,7 +120,7 @@ class App extends Component {
         this.setState({
           fileList: [],
           uploading: false,
-          testLink: data.searchUrl,
+          searchLink: data.searchUrl,
         });
         message.success('upload successfuly');
       },
@@ -128,15 +128,32 @@ class App extends Component {
         this.setState({
           uploading: false,
         });
-        message.success('upload failed');
+        message.error('upload failed');
       },
+    });
+  }
+
+  searchCsv = () => {
+    const {searchLink} = this.state;
+    reqwest({
+      url: uploadServerHost + searchLink,
+      success: (data) => {
+        this.setState({
+          columns: data.columns,
+          dataSource: data.dataSource,
+        });
+        message.success('search successfuly, refresh table');
+      },
+      error: () => {
+        message.error('search failed');
+      }
     });
   }
 
   render() {
 
     const { selectedRowKeys, dataSource, columns } = this.state;
-    const { fileList, uploading, testLink } = this.state;
+    const { fileList, uploading, searchLink } = this.state;
 
     const rowSelection = {
       selectedRowKeys,
@@ -180,9 +197,10 @@ class App extends Component {
         </Button>
         <Button
           type="primary"
-          disabled={!testLink}
+          disabled={!searchLink}
           style={{ marginTop: 16, marginLeft: 10 }}
-        >Test</Button>
+          onClick={this.searchCsv}
+        >Search CSV</Button>
       </div>
     );
   }
