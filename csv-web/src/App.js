@@ -12,6 +12,7 @@ import reqwest from 'reqwest';
  */
 
 const { Dragger } = Upload;
+const uploadServerHost = 'http://localhost:8080';
 
 class App extends Component {
   constructor(props) {
@@ -109,7 +110,6 @@ class App extends Component {
       uploading: true,
     })
 
-    const uploadServerHost = 'http://localhost:8080';
     reqwest({
       url: uploadServerHost + '/csv/upload',
       method: 'post',
@@ -120,7 +120,7 @@ class App extends Component {
         this.setState({
           fileList: [],
           uploading: false,
-          testLink: uploadServerHost + data.searchUrl,
+          testLink: data.searchUrl,
         });
         message.success('upload successfuly');
       },

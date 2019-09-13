@@ -63,10 +63,43 @@ public class CsvFileService {
         }
     }
 
+    /**
+     * read the last line by skipLineCount and split it by comma as headers
+     * @param file uploaded file
+     * @param skipLineCount start from 0
+     * @return headers
+     */
+    public String[] getCsvHeaders(MultipartFile file, int skipLineCount) {
+        BufferedReader in = null;
+        try {
+            // TODO: store and process later
+            in = new BufferedReader(new InputStreamReader(file.getInputStream()));
+        } catch (FileNotFoundException e) {
+            // TODO: return a file not found message
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        // skip lines
+        try {
+            if (in != null) {
+                for (int i = 0; i <= skipLineCount; i++) {
+                    String lineData = in.readLine();
+                    if(i == skipLineCount) {
+                        return lineData.split(",");
+                    }
+                }
+            }
+        } catch (IOException e) {
+            // TODO: return no content message
+        }
+
+        return null;
+    }
+
     public void parseExcelCsv(MultipartFile file, String csvName, String[] headers, int skipLineCount) {
         BufferedReader in = null;
         try {
-//            in = new BufferedReader(new FileReader(file));
             // TODO: store and process later
             in = new BufferedReader(new InputStreamReader(file.getInputStream()));
         } catch (FileNotFoundException e) {

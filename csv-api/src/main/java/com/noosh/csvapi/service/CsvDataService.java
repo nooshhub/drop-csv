@@ -2,6 +2,7 @@ package com.noosh.csvapi.service;
 
 import com.noosh.csvapi.dao.CsvData;
 import com.noosh.csvapi.dao.CsvHeader;
+import com.noosh.csvapi.vo.CsvColumnsVo;
 import com.noosh.csvapi.vo.CsvSearchResultVo;
 import com.noosh.csvapi.vo.CsvVo;
 import org.slf4j.Logger;
@@ -14,6 +15,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * @author Neal Shan
@@ -97,21 +99,27 @@ public class CsvDataService {
         jdbcTemplate.query(
                 "SELECT * FROM " + csvDataTableName,
                 (rs, rowNum) -> {
-                    Map<String, String> csvLienData = new HashMap<>();
-                    csvLienData.put("id", rs.getLong("id") + "");
+                    Map<String, String> csvLineData = new HashMap<>();
+                    csvLineData.put("key", rs.getLong("id") + "");
                     for (CsvHeader csvHeader : csvHeaders) {
-                        csvLienData.put(csvHeader.getColumnName(), rs.getString(csvHeader.getColumnName()));
+                        csvLineData.put(csvHeader.getColumnName(), rs.getString(csvHeader.getColumnName()));
                     }
-                    csvData.add(csvLienData);
+                    csvData.add(csvLineData);
                     return null;
                 }
 
         );
 
+        List<CsvColumnsVo> columnsVos = csvHeaders.stream()
+                .map(csvHeader -> new CsvColumnsVo(
+                        csvHeader.getHeaderName(),
+                        csvHeader.getColumnName(),
+                        csvHeader.getColumnName()))
+                .collect(Collectors.toList());
 
         CsvSearchResultVo csvVo = new CsvSearchResultVo();
-        csvVo.setCsvHeader(csvHeaders);
-        csvVo.setCsvData(csvData);
+        csvVo.setColumns(columnsVos);
+        csvVo.setDataSource(csvData);
         return csvVo;
     }
 

@@ -36,8 +36,14 @@ public class CsvResource {
             @RequestPart("file") MultipartFile file,
             @RequestParam(value = "headerLineNum", required = false, defaultValue = "0")
                     int skipCount) {
+
+        // TODO: get a unique csvName
         String csvName = "uhg";
-        String[] headers = new String[]{"UniqueName", "Setid", "Name", "cus_REINS", "cus_DESCRSHORT", "cus_REINS_DESCR_", "cus_SETID_REINS_"};
+
+//        String[] headers = new String[]{"UniqueName", "Setid", "Name", "cus_REINS", "cus_DESCRSHORT", "cus_REINS_DESCR_", "cus_SETID_REINS_"};
+
+        // get headers
+        String[] headers = csvFileService.getCsvHeaders(file, skipCount);
 
         // create table
         csvDataService.createCsvHeaderAndDataTable(csvName, headers);

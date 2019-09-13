@@ -11,22 +11,22 @@ import java.util.Map;
  * @since 0.0.1
  */
 public class CsvSearchResultVo {
-    private List<CsvHeader> csvHeader;
-    List<Map<String, String>> csvData;
+    private List<CsvColumnsVo> columns;
+    List<Map<String, String>> dataSource;
 
-    public List<CsvHeader> getCsvHeader() {
-        return csvHeader;
+    public List<CsvColumnsVo> getColumns() {
+        return columns;
     }
 
-    public void setCsvHeader(List<CsvHeader> csvHeader) {
-        this.csvHeader = csvHeader;
+    public void setColumns(List<CsvColumnsVo> columns) {
+        this.columns = columns;
     }
 
-    public List<Map<String, String>> getCsvData() {
-        return csvData;
+    public List<Map<String, String>> getDataSource() {
+        return dataSource;
     }
 
-    public void setCsvData(List<Map<String, String>> csvData) {
-        this.csvData = csvData;
+    public void setDataSource(List<Map<String, String>> dataSource) {
+        this.dataSource = dataSource;
     }
 }
