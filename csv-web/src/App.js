@@ -1,6 +1,7 @@
 
 import { Upload, Icon, message, Table, Button } from 'antd';
 import React, { Component } from 'react';
+import reqwest from 'reqwest';
 
 /**
  * 1. upload a csv
@@ -19,10 +20,13 @@ class App extends Component {
       selectedRowKeys: [0],
       columns: [],
       dataSource: [],
+      fileList: [],
+      uploading: false,
+      testLink: null,
     };
     this.beforeUpload = this.beforeUpload.bind(this); // properly bound once
   }
-  
+
 
   /**
    * only select the lastest selected one
@@ -52,7 +56,7 @@ class App extends Component {
         var lines = data.split('\n');
 
         // get the first line, and preview top 10 data
-        const columns=[];
+        const columns = [];
         const dataSource = [];
         const columnCount = lines[0].split(",").length;
         for (let columnIndex = 0; columnIndex < columnCount; columnIndex++) {
@@ -76,10 +80,11 @@ class App extends Component {
           dataSource.push(line);
         }
 
-        this.setState({
+        this.setState(state => ({
           columns: columns,
           dataSource: dataSource,
-        });
+          fileList: [...state.fileList, file],
+        }));
 
       }
 
@@ -93,10 +98,44 @@ class App extends Component {
     return false;
   }
 
+  handleUpload = () => {
+    const { fileList } = this.state;
+    const formData = new FormData();
+
+    fileList.forEach(file => {
+      formData.append('files[]', file);
+    });
+
+    this.setState({
+      uploading: true,
+    })
+
+    reqwest({
+      url: 'https://www.mocky.io/v2/5cc8019d300000980a055e76',
+      method: 'post',
+      processData: false,
+      data: formData,
+      success: () => {
+        this.setState({
+          fileList: [],
+          uploading: false,
+          testLink: 'todo',
+        });
+        message.success('upload successfuly');
+      },
+      error: () => {
+        this.setState({
+          uploading: false,
+        });
+        message.success('upload failed');
+      },
+    });
+  }
 
   render() {
 
     const { selectedRowKeys, dataSource, columns } = this.state;
+    const { fileList, uploading, testLink } = this.state;
 
     const rowSelection = {
       selectedRowKeys,
@@ -108,6 +147,7 @@ class App extends Component {
       multiple: false,
       accept: 'application/vnd.ms-excel',
       beforeUpload: this.beforeUpload,
+      fileList,
     }
 
     return (
@@ -128,8 +168,20 @@ class App extends Component {
           dataSource={dataSource}
           columns={columns} />
 
-        <Button type="primary">Upload</Button>
-        <Button type="primary">Test</Button>
+        <Button
+          type="primary"
+          onClick={this.handleUpload}
+          disabled={fileList.length === 0}
+          loading={uploading}
+          style={{ marginTop: 16 }}
+        >
+          {uploading ? 'Uploading' : 'Start Upload'}
+        </Button>
+        <Button
+          type="primary"
+          disabled={!testLink}
+          style={{ marginTop: 16, marginLeft: 10 }}
+        >Test</Button>
       </div>
     );
   }
