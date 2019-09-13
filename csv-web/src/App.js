@@ -7,8 +7,9 @@ import reqwest from 'reqwest';
  * 1. upload a csv
  * 2. preview top 10 rows of data
  * 3. choose a line as header
- * 4. - click upload and post file and headerLineNum
- * 5. after uploaded successfully, click test and get data from DB, the table will be with pagination
+ * 4. click upload and post file and headerLineNum
+ * 5. - after uploaded successfully, route a search page 
+ * 6. show search url, click search CSV and get data from DB, the table will be with pagination
  */
 
 const { Dragger } = Upload;
@@ -168,6 +169,11 @@ class App extends Component {
       fileList,
     }
 
+    let searchMessage = "";
+    if(searchLink) {
+      searchMessage = 'Your search Url is ' + searchLink;
+    }
+
     return (
       <div className="container">
 
@@ -195,12 +201,15 @@ class App extends Component {
         >
           {uploading ? 'Uploading' : 'Start Upload'}
         </Button>
+
         <Button
           type="primary"
           disabled={!searchLink}
           style={{ marginTop: 16, marginLeft: 10 }}
           onClick={this.searchCsv}
         >Search CSV</Button>
+        
+        <p>{searchMessage}</p>
       </div>
     );
   }
