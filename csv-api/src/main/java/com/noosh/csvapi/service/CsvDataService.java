@@ -2,6 +2,7 @@ package com.noosh.csvapi.service;
 
 import com.noosh.csvapi.dao.CsvData;
 import com.noosh.csvapi.dao.CsvHeader;
+import com.noosh.csvapi.dao.CsvInfo;
 import com.noosh.csvapi.vo.CsvColumnsVo;
 import com.noosh.csvapi.vo.CsvSearchResultVo;
 import com.noosh.csvapi.vo.CsvVo;
@@ -9,8 +10,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Service;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -25,9 +29,36 @@ import java.util.stream.Collectors;
 public class CsvDataService {
 
     private static final Logger log = LoggerFactory.getLogger(CsvDataService.class);
+    String csvInfoTableName = "csv_info";
 
     @Autowired
     JdbcTemplate jdbcTemplate;
+
+    public CsvInfo createCsvInfoTable(String csvFileName, String uniqueCsvSearchName) throws SQLException {
+        // csv_info
+
+        log.info("Creating tables if not exists: " + csvInfoTableName);
+        jdbcTemplate.execute("CREATE TABLE IF NOT EXISTS " + csvInfoTableName + " (" +
+                "id SERIAL, csv_name VARCHAR(255), search_name VARCHAR(255))");
+
+        jdbcTemplate.update("INSERT INTO " + csvInfoTableName + "(csv_name, search_name) VALUES (?,?)", csvFileName, uniqueCsvSearchName);
+
+        return jdbcTemplate.queryForObject("SELECT * FROM " + csvInfoTableName + " WHERE search_name = '" + uniqueCsvSearchName + "'",
+                getCsvInfoRowMapper());
+    }
+
+    private RowMapper<CsvInfo> getCsvInfoRowMapper() throws SQLException {
+        return new RowMapper<CsvInfo>() {
+            @Override
+            public CsvInfo mapRow(ResultSet rs, int rowNum) throws SQLException {
+                CsvInfo csvInfo = new CsvInfo();
+                csvInfo.setId(rs.getLong("id"));
+                csvInfo.setCsvName(rs.getString("csv_name"));
+                csvInfo.setSearchName(rs.getString("search_name"));
+                return csvInfo;
+            }
+        };
+    }
 
     public void createCsvHeaderAndDataTable(String csvName, String[] headers) {
         log.info("Creating tables");
@@ -123,4 +154,8 @@ public class CsvDataService {
         return csvVo;
     }
 
+    public CsvInfo findCsvInfo(Long id) throws SQLException {
+        return jdbcTemplate.queryForObject("SELECT * FROM " + csvInfoTableName + " WHERE id = " + id + "",
+                getCsvInfoRowMapper());
+    }
 }
