@@ -1,219 +1,53 @@
+import React from 'react';
+import { BrowserRouter as Router, Route, Link } from 'react-router-dom';
+import { Menu, Icon } from 'antd';
 
-import { Upload, Icon, message, Table, Button } from 'antd';
-import React, { Component } from 'react';
-import reqwest from 'reqwest';
+import Upload from './csv/Upload';
+import List from './csv/List';
+import Edit from './csv/Edit';
 
-/**
- * 1. upload a csv
- * 2. preview top 10 rows of data
- * 3. choose a line as header
- * 4. click upload and post file and headerLineNum
- * 5. - after uploaded successfully, route a search page 
- * 6. show search url, click search CSV and get data from DB, the table will be with pagination
- */
+const { SubMenu } = Menu;
 
-const { Dragger } = Upload;
-const uploadServerHost = 'http://localhost:8080';
+class App extends React.Component {
 
-class App extends Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      selectedRowKeys: [0],
-      columns: [],
-      dataSource: [],
-      fileList: [],
-      uploading: false,
-      searchLink: null,
-    };
-    this.beforeUpload = this.beforeUpload.bind(this); // properly bound once
-  }
-
-
-  /**
-   * only select the lastest selected one
-   */
-  onSelectChange = selectedRowKeys => {
-    let newSelectedKeys = [selectedRowKeys[1]];
-    this.setState({ selectedRowKeys: newSelectedKeys });
+  state = {
+    current: 'upload',
   };
 
-  /**
-   * Before Upload, preivew top 10 data, and select header line
-   * @param {*} file 
-   */
-  beforeUpload = (file) => {
-    const isCsv = file.type === 'application/vnd.ms-excel';
-    if (!isCsv) {
-      message.error('You can only upload csv file!');
-    }
-
-    if (typeof (FileReader) !== 'undefined') {    //H5
-      var reader = new FileReader();
-
-      reader.onload = (evt) => {
-        var data = evt.target.result;
-
-        // lines
-        var lines = data.split('\n');
-
-        // get the first line, and preview top 10 data
-        const columns = [];
-        const dataSource = [];
-        const columnCount = lines[0].split(",").length;
-        for (let columnIndex = 0; columnIndex < columnCount; columnIndex++) {
-          columns.push(
-            {
-              title: 'column ' + columnIndex,
-              dataIndex: 'attr' + columnIndex,
-            },
-          )
-        }
-
-        for (let rowIndex = 0; rowIndex < 10; rowIndex++) {
-          let line = {};
-          line['key'] = rowIndex;
-
-          let dataLineArr = lines[rowIndex].split(",");
-          for (let columnIndex = 0; columnIndex < columnCount; columnIndex++) {
-            line['attr' + columnIndex] = dataLineArr[columnIndex];
-          }
-
-          dataSource.push(line);
-        }
-
-        this.setState(state => ({
-          columns: columns,
-          dataSource: dataSource,
-          fileList: [...state.fileList, file],
-        }));
-
-      }
-
-      // limit file to 1024 for preview
-      reader.readAsText(file.slice(0, 1024));
-
-    } else {
-      message.error("IE9 is not support, please use Chrome or Firefox");
-    }
-
-    return false;
-  }
-
-  handleUpload = () => {
-    const { fileList, selectedRowKeys } = this.state;
-    const formData = new FormData();
-
-    formData.append('file', fileList[0]);
-    formData.append('headerLineNum', selectedRowKeys[0]);
-
+  handleClick = e => {
+    console.log('click ', e);
     this.setState({
-      uploading: true,
-    })
-
-    reqwest({
-      url: uploadServerHost + '/csv/upload',
-      method: 'post',
-      processData: false,
-      data: formData,
-      success: (data) => {
-
-        this.setState({
-          fileList: [],
-          uploading: false,
-          searchLink: data.searchUrl,
-        });
-        message.success('upload successfuly');
-      },
-      error: () => {
-        this.setState({
-          uploading: false,
-        });
-        message.error('upload failed');
-      },
+      current: e.key,
     });
-  }
-
-  searchCsv = () => {
-    const {searchLink} = this.state;
-    reqwest({
-      url: uploadServerHost + searchLink,
-      success: (data) => {
-        this.setState({
-          columns: data.columns,
-          dataSource: data.dataSource,
-        });
-        message.success('search successfuly, refresh table');
-      },
-      error: () => {
-        message.error('search failed');
-      }
-    });
-  }
+  };
 
   render() {
-
-    const { selectedRowKeys, dataSource, columns } = this.state;
-    const { fileList, uploading, searchLink } = this.state;
-
-    const rowSelection = {
-      selectedRowKeys,
-      onChange: this.onSelectChange,
-    }
-
-    const draggerProps = {
-      name: 'file',
-      multiple: false,
-      accept: 'application/vnd.ms-excel',
-      beforeUpload: this.beforeUpload,
-      fileList,
-    }
-
-    let searchMessage = "";
-    if(searchLink) {
-      searchMessage = 'Your search Url is ' + searchLink;
-    }
-
     return (
-      <div className="container">
+      <Router>
+        <Menu onClick={this.handleClick} selectedKeys={[this.state.current]} mode="horizontal">
+          <SubMenu
+            title={
+              <span className="submenu-title-wrapper">
+                <Icon type="upload" />
+                <Link to='/'>CSV</Link>
+              </span>
+            }
+          >
+            <Menu.Item key="upload:1">
+              <Link to='/csv/upload'>Upload</Link>
+            </Menu.Item>
+            <Menu.Item key="upload:2">
+              <Link to='/csv/list'>List</Link>
+            </Menu.Item>
+          </SubMenu>
+        </Menu>
 
-        <Dragger {...draggerProps}>
-          <p className="ant-upload-drag-icon">
-            <Icon type="inbox" />
-          </p>
-          <p className="ant-upload-text">Click or drag file to this area to upload</p>
-          <p className="ant-upload-hint">
-            Support for a single or bulk upload. Strictly prohibit from uploading company data or other
-            band files
-          </p>
-        </Dragger>
-
-        <Table rowSelection={rowSelection}
-          dataSource={dataSource}
-          columns={columns} />
-
-        <Button
-          type="primary"
-          onClick={this.handleUpload}
-          disabled={fileList.length === 0}
-          loading={uploading}
-          style={{ marginTop: 16 }}
-        >
-          {uploading ? 'Uploading' : 'Start Upload'}
-        </Button>
-
-        <Button
-          type="primary"
-          disabled={!searchLink}
-          style={{ marginTop: 16, marginLeft: 10 }}
-          onClick={this.searchCsv}
-        >Search CSV</Button>
-        
-        <p>{searchMessage}</p>
-      </div>
+        <Route path='/csv/upload' component={Upload}></Route>
+        <Route path='/csv/list' component={List}></Route>
+        <Route path='/csv/edit/:searchLink' component={Edit}></Route>
+      </Router >
     );
   }
 }
 
 export default App;
-
