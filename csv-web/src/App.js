@@ -6,6 +6,8 @@ import Upload from './csv/Upload';
 import List from './csv/List';
 import Edit from './csv/Edit';
 
+import './App.css';
+
 const { SubMenu } = Menu;
 
 class App extends React.Component {
