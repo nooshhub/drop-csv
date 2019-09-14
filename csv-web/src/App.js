@@ -46,7 +46,7 @@ class App extends React.Component {
 
         <Route path='/csv/upload' component={Upload}></Route>
         <Route path='/csv/list' component={List}></Route>
-        <Route path='/csv/edit/:searchLink' component={Edit}></Route>
+        <Route path='/csv/edit' component={Edit}></Route>
       </Router >
     );
   }
