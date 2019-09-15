@@ -35,6 +35,14 @@ public class CsvDataService {
     JdbcTemplate jdbcTemplate;
 
     public void createCsvInfoTable() throws SQLException {
+        String datasourceUrl = null;
+        try {
+            datasourceUrl = jdbcTemplate.getDataSource().getConnection().getMetaData().getURL();
+        } catch (SQLException e) {
+            log.error("Non-fatal error: unable to get datasource for logging which database we are connected to.", e);
+        }
+        log.info("Datasource URL: " + datasourceUrl);
+
         log.info("Creating tables if not exists: " + csvInfoTableName);
         jdbcTemplate.execute("CREATE TABLE IF NOT EXISTS " + csvInfoTableName + " (" +
                 "id SERIAL, csv_name VARCHAR(255), search_name VARCHAR(255))");
@@ -49,7 +57,7 @@ public class CsvDataService {
 
     public boolean isCsvExist(String uniqueCsvSearchName) throws SQLException {
         return jdbcTemplate.queryForObject("SELECT count(*) FROM " + csvInfoTableName + " WHERE search_name = '" + uniqueCsvSearchName + "'",
-                Integer.class) == 0;
+                Integer.class) != 0;
     }
 
     private RowMapper<CsvInfo> getCsvInfoRowMapper() throws SQLException {
