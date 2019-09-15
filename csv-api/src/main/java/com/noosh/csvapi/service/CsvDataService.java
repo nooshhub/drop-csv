@@ -34,17 +34,22 @@ public class CsvDataService {
     @Autowired
     JdbcTemplate jdbcTemplate;
 
-    public CsvInfo createCsvInfoTable(String csvFileName, String uniqueCsvSearchName) throws SQLException {
-        // csv_info
-
+    public void createCsvInfoTable() throws SQLException {
         log.info("Creating tables if not exists: " + csvInfoTableName);
         jdbcTemplate.execute("CREATE TABLE IF NOT EXISTS " + csvInfoTableName + " (" +
                 "id SERIAL, csv_name VARCHAR(255), search_name VARCHAR(255))");
+    }
 
+    public CsvInfo insertCsvInfo(String csvFileName, String uniqueCsvSearchName) throws SQLException {
         jdbcTemplate.update("INSERT INTO " + csvInfoTableName + "(csv_name, search_name) VALUES (?,?)", csvFileName, uniqueCsvSearchName);
 
         return jdbcTemplate.queryForObject("SELECT * FROM " + csvInfoTableName + " WHERE search_name = '" + uniqueCsvSearchName + "'",
                 getCsvInfoRowMapper());
+    }
+
+    public boolean isCsvExist(String uniqueCsvSearchName) throws SQLException {
+        return jdbcTemplate.queryForObject("SELECT count(*) FROM " + csvInfoTableName + " WHERE search_name = '" + uniqueCsvSearchName + "'",
+                Integer.class) == 0;
     }
 
     private RowMapper<CsvInfo> getCsvInfoRowMapper() throws SQLException {

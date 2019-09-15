@@ -36,25 +36,34 @@ public class CsvResource {
             @RequestParam(value = "headerLineNum", required = false, defaultValue = "0")
                     int skipCount) throws SQLException {
 
+        // create csv info table if not exist
+        csvDataService.createCsvInfoTable();
+
         String csvFileName = file.getOriginalFilename();
 
-        // TODO: get a unique csvName
         String uniqueCsvSearchName = csvFileName.substring(0, csvFileName.lastIndexOf(".")).toLowerCase();
+        if(csvDataService.isCsvExist(uniqueCsvSearchName)) {
+            // TODO:
+            // 1. we can update the table instead of throw exception, but the front-end should have a confirmation for updating
+            // 2. we can also not delete and update, we can create new table, can rename the table name to switch it, and then drop the old table
+            throw new RuntimeException("csv is exist");
+        } else {
+            // insert csv info if not exist
+            CsvInfo csvInfo = csvDataService.insertCsvInfo(csvFileName, uniqueCsvSearchName);
 
-        // create csv info table and save csv
-        CsvInfo csvInfo = csvDataService.createCsvInfoTable(csvFileName, uniqueCsvSearchName);
+            // get headers
+            String[] headers = csvFileService.getCsvHeaders(file, skipCount);
 
-        // get headers
-        String[] headers = csvFileService.getCsvHeaders(file, skipCount);
+            // create csv header and data table
+            csvDataService.createCsvHeaderAndDataTable(uniqueCsvSearchName, headers);
 
-        // create csv header and data table
-        csvDataService.createCsvHeaderAndDataTable(uniqueCsvSearchName, headers);
+            // parse excel and insert data into created table
+            csvFileService.parseExcelCsv(file, uniqueCsvSearchName, headers, skipCount);
 
-        // parse excel and insert data into created table
-        csvFileService.parseExcelCsv(file, uniqueCsvSearchName, headers, skipCount);
+            // return csvInfo
+            return csvInfo;
+        }
 
-        // return csvInfo
-        return csvInfo;
     }
 
     @GetMapping(value = "/info/{id}")
