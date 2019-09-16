@@ -77,6 +77,12 @@ public class CsvResource {
         return csvDataService.findCsvList();
     }
 
+    @GetMapping(value = "/bigdata/sample")
+    public void generateBigCsv() {
+        // TODO: download file
+        csvFileService.generateBigCsv();
+    }
+
     @GetMapping(value = "/_search/{csvName}")
     public CsvSearchResultVo searchCsv(
             @PathVariable("csvName") String csvName) {

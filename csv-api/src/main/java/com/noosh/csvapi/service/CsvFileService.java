@@ -1,7 +1,9 @@
 package com.noosh.csvapi.service;
 
+import com.noosh.csvapi.dao.CsvInfo;
 import com.noosh.csvapi.vo.CsvVo;
 import org.apache.commons.csv.CSVFormat;
+import org.apache.commons.csv.CSVPrinter;
 import org.apache.commons.csv.CSVRecord;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -35,8 +37,7 @@ public class CsvFileService {
     public void init() {
         try {
             Files.createDirectories(rootLocation);
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             throw new StorageException("Could not initialize storage", e);
         }
     }
@@ -57,15 +58,15 @@ public class CsvFileService {
                 Files.copy(inputStream, this.rootLocation.resolve(filename),
                         StandardCopyOption.REPLACE_EXISTING);
             }
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             throw new StorageException("Failed to store file " + filename, e);
         }
     }
 
     /**
      * read the last line by skipLineCount and split it by comma as headers
-     * @param file uploaded file
+     *
+     * @param file          uploaded file
      * @param skipLineCount start from 0
      * @return headers
      */
@@ -85,7 +86,7 @@ public class CsvFileService {
             if (in != null) {
                 for (int i = 0; i <= skipLineCount; i++) {
                     String lineData = in.readLine();
-                    if(i == skipLineCount) {
+                    if (i == skipLineCount) {
                         return lineData.split(",");
                     }
                 }
@@ -147,7 +148,7 @@ public class CsvFileService {
                 lineCount++;
 
                 // batch update with batchSize
-                if(lineCount == batchSize) {
+                if (lineCount == batchSize) {
                     // batch update
                     csvDataService.insertIntoDataTable(csvName, headers.length, batchLine);
 
@@ -158,13 +159,13 @@ public class CsvFileService {
                     // this record should be add to batchLine too
                     lineCount++;
                     batchLine.add(line.toArray());
-                } else if(lineCount < batchSize) {
+                } else if (lineCount < batchSize) {
                     batchLine.add(line.toArray());
                 }
             }
 
             // process rest of data
-            if(lineCount > 0) {
+            if (lineCount > 0) {
                 csvDataService.insertIntoDataTable(csvName, headers.length, batchLine);
             }
 
@@ -175,4 +176,26 @@ public class CsvFileService {
     }
 
 
+    public void generateBigCsv() {
+
+        try (FileWriter fileWriter = new FileWriter("D:\\dev\\awesome\\test.csv", true);
+             CSVPrinter printer = CSVFormat.DEFAULT.withHeader(Headers.class).print(fileWriter);) {
+
+            for (int i = 0; i < 1_000_000; i++) {
+                printer.printRecord(
+                        "ID" + i,
+                        "CustomerNo" + i,
+                        "Name" + i,
+                        "Address" + i,
+                        "PhoneNumber" + i);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+    }
+}
+
+enum Headers {
+    ID, CustomerNo, Name, Address, PhoneNumber
 }
