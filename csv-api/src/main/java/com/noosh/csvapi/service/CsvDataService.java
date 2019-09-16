@@ -171,4 +171,8 @@ public class CsvDataService {
         return jdbcTemplate.queryForObject("SELECT * FROM " + csvInfoTableName + " WHERE id = " + id + "",
                 getCsvInfoRowMapper());
     }
+
+    public List<CsvInfo> findCsvList() throws SQLException {
+        return jdbcTemplate.query("SELECT * FROM " + csvInfoTableName, getCsvInfoRowMapper());
+    }
 }

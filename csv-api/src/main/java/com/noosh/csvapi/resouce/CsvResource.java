@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.sql.SQLException;
+import java.util.List;
 
 /**
  * @author Neal Shan
@@ -69,6 +70,11 @@ public class CsvResource {
     public CsvInfo findCsvInfo(
             @PathVariable("id") Long id) throws SQLException {
         return csvDataService.findCsvInfo(id);
+    }
+
+    @GetMapping(value = "/list")
+    public List<CsvInfo> findCsvList() throws SQLException {
+        return csvDataService.findCsvList();
     }
 
     @GetMapping(value = "/_search/{csvName}")
