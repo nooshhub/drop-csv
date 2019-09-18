@@ -99,10 +99,26 @@ class App extends Component {
                     dataSource.push(line);
                 }
 
+                const totalSize = file.size;
+                const shardCapacity = 10 * 1024 * 1024; // one shard 2M
+                const shardSize = Math.ceil(totalSize / shardCapacity);
+                let files = [];
+                let sliceStart = 0;
+                let sliceEnd = 0;
+                for (let i = 1; i <= shardSize; i++) {
+                    sliceEnd = i * shardCapacity;
+                    files[i] = file.slice(sliceStart, sliceEnd);
+                    sliceStart = sliceEnd;
+                }
+
+                console.log(totalSize);
+                console.log(shardSize);
+                console.log(files);
+
                 this.setState(state => ({
                     columns: columns,
                     dataSource: dataSource,
-                    fileList: [...state.fileList, file],
+                    fileList: [...state.fileList, ...files],
                     currentStep: state.currentStep + 1,
                 }));
 
@@ -119,38 +135,83 @@ class App extends Component {
     }
 
     handleUpload = () => {
-        const { fileList, selectedRowKeys } = this.state;
-        const formData = new FormData();
 
-        formData.append('file', fileList[0]);
-        formData.append('headerLineNum', selectedRowKeys[0]);
+        const { fileList, selectedRowKeys, dataSource, columns } = this.state;
 
-        this.setState({
-            uploading: true,
-        })
+        const headerSize = columns.length;
+        const headers = [];
+        for (let i = 0; i < headerSize; i++) {
+            headers.push(dataSource[selectedRowKeys[0]]['attr' + i]);
+        }
 
+        const fileName = "test.csv";
+
+        // 1. init csv table
         reqwest({
-            url: uploadServerHost + '/csv/upload',
+            url: uploadServerHost + '/csv/upload/init',
             method: 'post',
-            processData: false,
-            data: formData,
+            contentType: 'application/json',
+            data: JSON.stringify({
+                csvFileName: fileName,
+                csvHeaders: headers,
+            }),
             success: (data) => {
 
                 this.setState(state => ({
-                    fileList: [],
                     uploading: false,
                     csvId: data.id,
-                    currentStep: state.currentStep + 1,
                 }));
-                message.success('upload successfuly');
+                message.success('upload init successfuly');
+
+
+                // 2. upload files 
+                for (let i = 0; i < fileList.length; i++) {
+                    const formData = new FormData();
+                    formData.append('file', fileList[i]);
+                    formData.append('csvShardIndex', i);
+                    formData.append('csvHeaders', headers);
+                    formData.append('csvFileName', fileName);
+
+                    this.setState({
+                        uploading: true,
+                    })
+
+                    reqwest({
+                        url: uploadServerHost + '/csv/upload/multi',
+                        method: 'post',
+                        processData: false,
+                        data: formData,
+                        success: (data) => {
+
+                            this.setState(state => ({
+                                // fileList: [],
+                                uploading: false,
+                                // csvId: data.id,
+                                // currentStep: state.currentStep + 1,
+                            }));
+                            message.success('upload successfuly');
+                        },
+                        error: () => {
+                            this.setState({
+                                uploading: false,
+                            });
+                            message.error('upload failed');
+                        },
+                    });
+                }
+
             },
             error: () => {
                 this.setState({
                     uploading: false,
                 });
-                message.error('upload failed');
+                message.error('upload init failed');
             },
         });
+
+
+
+
     }
 
 

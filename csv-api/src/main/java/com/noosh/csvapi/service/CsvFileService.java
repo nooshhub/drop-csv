@@ -181,6 +181,7 @@ public class CsvFileService {
             in = new BufferedReader(new InputStreamReader(file.getInputStream()));
         } catch (FileNotFoundException e) {
             // TODO: return a file not found message
+            e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -193,6 +194,7 @@ public class CsvFileService {
             }
         } catch (IOException e) {
             // TODO: return a file not found message
+            e.printStackTrace();
         }
 
         if (records != null) {
@@ -236,6 +238,7 @@ public class CsvFileService {
 
         } else {
             // TODO: no data message
+            System.out.println("No Data Message");
         }
 
     }

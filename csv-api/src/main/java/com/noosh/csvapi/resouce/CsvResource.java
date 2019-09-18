@@ -105,10 +105,9 @@ public class CsvResource {
     public CsvSearchResultVo uploadMultiCsv(
             @RequestPart("file") MultipartFile file,
             @RequestParam(value = "csvShardIndex") Integer csvShardIndex,
-            @RequestParam(value = "csvHeaders") String[] csvHeaders
+            @RequestParam(value = "csvHeaders") String[] csvHeaders,
+            @RequestParam(value = "csvFileName") String csvFileName
     ) throws SQLException {
-
-        String csvFileName = file.getOriginalFilename();
 
         String uniqueCsvSearchName = csvFileName.substring(0, csvFileName.lastIndexOf(".")).toLowerCase();
         if(csvDataService.isCsvExist(uniqueCsvSearchName)) {
