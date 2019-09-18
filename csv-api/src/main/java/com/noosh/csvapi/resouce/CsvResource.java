@@ -140,13 +140,5 @@ public class CsvResource {
         // TODO: download file
     }
 
-    @GetMapping(value = "/_search/{csvName}")
-    public CsvSearchResultVo searchCsv(
-            @PathVariable("csvName") String csvName,
-            @RequestParam(value = "page", required = false, defaultValue = "1") int page,
-            @RequestParam(value = "size", required = false, defaultValue = "10") int size
-    ) {
-        return csvDataService.searchCsv(csvName, page, size);
-    }
 
 }
