@@ -16,6 +16,8 @@ public class CsvIdGenerator {
      * @return 1 0000 0000 0000 00 1, size is 16
      */
     public static String get(Integer csvShardIndex, Integer lineCount) {
+        // TODO: if csvShardIndex is > 9, the id will no be override, but the sequence is not correct
+
         String csvShardIndexStr = csvShardIndex.toString();
         String lineCountStr = lineCount.toString();
 
