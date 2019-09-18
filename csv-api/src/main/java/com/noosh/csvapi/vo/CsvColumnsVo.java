@@ -1,6 +1,7 @@
 package com.noosh.csvapi.vo;
 
 /**
+ * This is for React Ant Design Table Column
  * Author: Neal Shan
  * Date: 2019/9/13
  */

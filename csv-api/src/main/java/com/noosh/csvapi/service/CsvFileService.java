@@ -1,7 +1,5 @@
 package com.noosh.csvapi.service;
 
-import com.noosh.csvapi.dao.CsvInfo;
-import com.noosh.csvapi.vo.CsvVo;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
 import org.apache.commons.csv.CSVRecord;
@@ -15,7 +13,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author Neal Shan
@@ -190,7 +189,7 @@ public class CsvFileService {
         Iterable<CSVRecord> records = null;
         try {
             if (in != null) {
-                records = CSVFormat.EXCEL.parse(in);
+                records = CSVFormat.EXCEL.withHeader(headers).parse(in);
             }
         } catch (IOException e) {
             // TODO: return a file not found message
@@ -205,7 +204,7 @@ public class CsvFileService {
             int lineCount = 0;
             List<Object[]> batchLine = new ArrayList<>(batchSize);
 
-            int lineDataLength = headers.length;
+            int lineDataLength = headers.length + 1; // +1 for generated id
             for (CSVRecord record : records) {
                 List<String> line = new ArrayList<>(lineDataLength);
                 // get id
@@ -243,27 +242,6 @@ public class CsvFileService {
 
     }
 
-
-    public void generateBigCsv() {
-
-        try (FileWriter fileWriter = new FileWriter("D:\\dev\\awesome\\test.csv", true);
-             CSVPrinter printer = CSVFormat.DEFAULT.withHeader(Headers.class).print(fileWriter);) {
-
-            for (int i = 0; i < 1_000_000; i++) {
-                printer.printRecord(
-                        "ID" + i,
-                        "CustomerNo" + i,
-                        "Name" + i,
-                        "Address" + i,
-                        "PhoneNumber" + i);
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-    }
 }
 
-enum Headers {
-    ID, CustomerNo, Name, Address, PhoneNumber
-}
+

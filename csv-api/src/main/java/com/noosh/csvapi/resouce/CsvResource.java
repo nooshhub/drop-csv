@@ -4,6 +4,7 @@ import com.noosh.csvapi.dao.CsvInfo;
 import com.noosh.csvapi.service.CsvDataService;
 import com.noosh.csvapi.service.CsvFileService;
 import com.noosh.csvapi.vo.CsvSearchResultVo;
+import com.noosh.csvapi.vo.CsvVo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -66,11 +67,12 @@ public class CsvResource {
 
     }
 
-    @PostMapping(value = "/before_upload")
+    @PostMapping(value = "/upload/init")
     public CsvInfo uploadCsvInit(
-            @RequestParam(value = "csvFileName") String csvFileName,
-            @RequestParam(value = "csvHeaders") String[] csvHeaders) throws SQLException {
+            @RequestBody CsvVo csvVo
+    ) throws SQLException {
 
+        String csvFileName = csvVo.getCsvFileName();
         // create csv info table if not exist
         csvDataService.createCsvInfoTable();
 
@@ -85,7 +87,7 @@ public class CsvResource {
             CsvInfo csvInfo = csvDataService.insertCsvInfo(csvFileName, uniqueCsvSearchName);
 
             // get headers
-            String[] headers = csvHeaders;
+            String[] headers = csvVo.getCsvHeaders();
 
             // create csv header and data table
             csvDataService.createCsvHeaderAndDataTable(uniqueCsvSearchName, headers);
@@ -132,10 +134,9 @@ public class CsvResource {
         return csvDataService.findCsvList();
     }
 
-    @GetMapping(value = "/bigdata/sample")
+    @GetMapping(value = "/export")
     public void generateBigCsv() {
         // TODO: download file
-        csvFileService.generateBigCsv();
     }
 
 }

@@ -1,6 +1,6 @@
 package com.noosh.csvapi.vo;
 
-import java.util.List;
+import javax.validation.constraints.NotEmpty;
 
 /**
  * @author Neal Shan
@@ -8,22 +8,24 @@ import java.util.List;
  */
 public class CsvVo {
 
-    private String[] headers;
-    private List<List<String>> lines;
+    @NotEmpty
+    private String csvFileName;
+    @NotEmpty
+    private String[] csvHeaders;
 
-    public String[] getHeaders() {
-        return headers;
+    public String getCsvFileName() {
+        return csvFileName;
     }
 
-    public void setHeaders(String[] headers) {
-        this.headers = headers;
+    public void setCsvFileName(String csvFileName) {
+        this.csvFileName = csvFileName;
     }
 
-    public List<List<String>> getLines() {
-        return lines;
+    public String[] getCsvHeaders() {
+        return csvHeaders;
     }
 
-    public void setLines(List<List<String>> lines) {
-        this.lines = lines;
+    public void setCsvHeaders(String[] csvHeaders) {
+        this.csvHeaders = csvHeaders;
     }
 }

@@ -11,12 +11,35 @@ import org.springframework.test.context.junit4.SpringRunner;
 @SpringBootTest
 public class CsvApiApplicationTests {
 
-	@Autowired
-	private CsvFileService csvFileService;
+    @Autowired
+    private MockCsvFileService mockCsvFileService;
 
-	@Test
-	public void contextLoads() {
-		csvFileService.generateBigCsv();
-	}
+    @Test
+    public void createMockCsv_local_small() {
+        int CSV_LINE_SIZE = 50_000;
+        String fileName = "D:\\dev\\awesome\\test.csv";
+        mockCsvFileService.generateBigCsv(CSV_LINE_SIZE, fileName);
+    }
+
+    @Test
+    public void createMockCsv_local_big() {
+        int CSV_LINE_SIZE = 1_000_000;
+        String fileName = "D:\\dev\\awesome\\test.csv";
+        mockCsvFileService.generateBigCsv(CSV_LINE_SIZE, fileName);
+    }
+
+    @Test
+    public void createMockCsv_remote_small() {
+        int CSV_LINE_SIZE = 50_000;
+        String fileName = "I:\\cloud\\test.csv";
+        mockCsvFileService.generateBigCsv(CSV_LINE_SIZE, fileName);
+    }
+
+    @Test
+    public void createMockCsv_remote_big() {
+        int CSV_LINE_SIZE = 1_000_000;
+        String fileName = "I:\\cloud\\test.csv";
+        mockCsvFileService.generateBigCsv(CSV_LINE_SIZE, fileName);
+    }
 
 }
