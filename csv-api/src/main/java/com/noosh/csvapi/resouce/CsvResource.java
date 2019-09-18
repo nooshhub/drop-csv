@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.websocket.server.PathParam;
 import java.sql.SQLException;
 import java.util.List;
 
@@ -101,7 +102,7 @@ public class CsvResource {
 
 
     @PostMapping(value = "/upload/multi")
-    public CsvInfo uploadMultiCsv(
+    public CsvSearchResultVo uploadMultiCsv(
             @RequestPart("file") MultipartFile file,
             @RequestParam(value = "csvShardIndex") Integer csvShardIndex,
             @RequestParam(value = "csvHeaders") String[] csvHeaders
@@ -119,7 +120,7 @@ public class CsvResource {
 
         }
 
-        return null;
+        return csvDataService.searchCsv(uniqueCsvSearchName, 1, 10);
 
     }
 
@@ -137,6 +138,15 @@ public class CsvResource {
     @GetMapping(value = "/export")
     public void generateBigCsv() {
         // TODO: download file
+    }
+
+    @GetMapping(value = "/_search/{csvName}")
+    public CsvSearchResultVo searchCsv(
+            @PathVariable("csvName") String csvName,
+            @RequestParam(value = "page", required = false, defaultValue = "1") int page,
+            @RequestParam(value = "size", required = false, defaultValue = "10") int size
+    ) {
+        return csvDataService.searchCsv(csvName, page, size);
     }
 
 }

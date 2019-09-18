@@ -1,0 +1,105 @@
+{
+	"info": {
+		"_postman_id": "058d54cc-7f52-420c-aa97-73b7955fbea1",
+		"name": "uhg",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "localhost:8080/csv/upload/init",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"type": "text",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"csvFileName\": \"test.csv\",\n\t\"csvHeaders\": [\"ID\", \"CustomerNo\", \"Name\", \"Address\", \"PhoneNumber\"]\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "localhost:8080/csv/upload/init",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"csv",
+						"upload",
+						"init"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "localhost:8080/csv/_search/test",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "localhost:8080/csv/_search/test",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"csv",
+						"_search",
+						"test"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "localhost:8080/csv/upload/multi",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "file",
+							"type": "file",
+							"src": "/I:/cloud/test.csv"
+						},
+						{
+							"key": "csvHeaders",
+							"value": "\"ID\", \"CustomerNo\", \"Name\", \"Address\", \"PhoneNumber\"",
+							"type": "text"
+						},
+						{
+							"key": "csvShardIndex",
+							"value": "0",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "localhost:8080/csv/upload/multi",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"csv",
+						"upload",
+						"multi"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}

@@ -43,7 +43,7 @@ public class CsvDataService {
 
         log.info("Creating tables if not exists: " + csvInfoTableName);
         jdbcTemplate.execute("CREATE TABLE IF NOT EXISTS " + csvInfoTableName + " (" +
-                "id SERIAL, csv_name VARCHAR(255), search_name VARCHAR(255))");
+                "ID SERIAL, csv_name VARCHAR(255), search_name VARCHAR(255))");
     }
 
     public CsvInfo insertCsvInfo(String csvFileName, String uniqueCsvSearchName) throws SQLException {
@@ -146,7 +146,7 @@ public class CsvDataService {
                 ")", batchLine);
     }
 
-    public CsvSearchResultVo searchCsv(String csvName) {
+    public CsvSearchResultVo searchCsv(String csvName, int page, int size) {
 
         String csvHeaderTableName = "csv_header_" + csvName;
         log.info("Querying for " + csvHeaderTableName + " records");
@@ -161,7 +161,8 @@ public class CsvDataService {
         String csvDataTableName = "csv_data_" + csvName;
         List<Map<String, String>> csvData = new ArrayList<>();
         jdbcTemplate.query(
-                "SELECT * FROM " + csvDataTableName,
+                "SELECT * FROM " + csvDataTableName +
+                        " limit " + size + " offset " + ((page - 1) * size),
                 (rs, rowNum) -> {
                     Map<String, String> csvLineData = new HashMap<>();
                     csvLineData.put("key", rs.getLong("id") + "");

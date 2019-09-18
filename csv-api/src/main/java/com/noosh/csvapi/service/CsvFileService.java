@@ -205,6 +205,7 @@ public class CsvFileService {
             List<Object[]> batchLine = new ArrayList<>(batchSize);
 
             int lineDataLength = headers.length + 1; // +1 for generated id
+            int batchTimes = 0;
             for (CSVRecord record : records) {
                 List<String> line = new ArrayList<>(lineDataLength);
                 // get id
@@ -212,27 +213,24 @@ public class CsvFileService {
                 for (String header : headers) {
                     line.add(record.get(header));
                 }
-                lineCount++;
 
                 // batch update with batchSize
-                if (lineCount == batchSize) {
+                if ((lineCount % batchSize) == 0) {
                     // batch update
                     csvDataService.insertIntoDataTableWithId(csvName, lineDataLength, batchLine);
-
                     // reset count and batchLine
-                    lineCount = 0;
                     batchLine = new ArrayList<>(batchSize);
 
-                    // this record should be add to batchLine too
-                    lineCount++;
-                    batchLine.add(line.toArray());
-                } else if (lineCount < batchSize) {
-                    batchLine.add(line.toArray());
+                    batchTimes++;
                 }
+
+                // this record should be add to batchLine too
+                batchLine.add(line.toArray());
+                lineCount++;
             }
 
             // process rest of data
-            if (lineCount > 0) {
+            if ((lineCount - (batchSize * batchTimes)) > 0) {
                 csvDataService.insertIntoDataTableWithId(csvName, lineDataLength, batchLine);
             }
 
