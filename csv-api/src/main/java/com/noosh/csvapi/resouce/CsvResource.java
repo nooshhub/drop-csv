@@ -66,6 +66,61 @@ public class CsvResource {
 
     }
 
+    @PostMapping(value = "/before_upload")
+    public CsvInfo uploadCsvInit(
+            @RequestParam(value = "csvFileName") String csvFileName,
+            @RequestParam(value = "csvHeaders") String[] csvHeaders) throws SQLException {
+
+        // create csv info table if not exist
+        csvDataService.createCsvInfoTable();
+
+        String uniqueCsvSearchName = csvFileName.substring(0, csvFileName.lastIndexOf(".")).toLowerCase();
+        if(csvDataService.isCsvExist(uniqueCsvSearchName)) {
+            // TODO:
+            // 1. we can update the table instead of throw exception, but the front-end should have a confirmation for updating
+            // 2. we can also not delete and update, we can create new table, can rename the table name to switch it, and then drop the old table
+            throw new RuntimeException("csv is exist");
+        } else {
+            // insert csv info if not exist
+            CsvInfo csvInfo = csvDataService.insertCsvInfo(csvFileName, uniqueCsvSearchName);
+
+            // get headers
+            String[] headers = csvHeaders;
+
+            // create csv header and data table
+            csvDataService.createCsvHeaderAndDataTable(uniqueCsvSearchName, headers);
+
+            // return csvInfo
+            return csvInfo;
+        }
+
+    }
+
+
+
+    @PostMapping(value = "/upload/multi")
+    public CsvInfo uploadMultiCsv(
+            @RequestPart("file") MultipartFile file,
+            @RequestParam(value = "csvShardIndex") Long csvShardIndex,
+            @RequestParam(value = "csvHeaders") String[] csvHeaders
+    ) throws SQLException {
+
+        String csvFileName = file.getOriginalFilename();
+
+        String uniqueCsvSearchName = csvFileName.substring(0, csvFileName.lastIndexOf(".")).toLowerCase();
+        if(csvDataService.isCsvExist(uniqueCsvSearchName)) {
+            // get headers
+            String[] headers = csvHeaders; //TODO: get it from csv_header_*
+
+            // parse excel and insert data into created table
+            csvFileService.parseExcelCsvAndInsertData(file, uniqueCsvSearchName, headers, csvShardIndex);
+
+        }
+
+        return null;
+
+    }
+
     @GetMapping(value = "/info/{id}")
     public CsvInfo findCsvInfo(
             @PathVariable("id") Long id) throws SQLException {
@@ -82,13 +137,5 @@ public class CsvResource {
         // TODO: download file
         csvFileService.generateBigCsv();
     }
-
-    @GetMapping(value = "/_search/{csvName}")
-    public CsvSearchResultVo searchCsv(
-            @PathVariable("csvName") String csvName) {
-        return csvDataService.searchCsv(csvName);
-    }
-
-    // todo: post search by field and criteria
 
 }

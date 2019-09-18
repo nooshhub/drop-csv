@@ -175,6 +175,72 @@ public class CsvFileService {
 
     }
 
+    public void parseExcelCsvAndInsertData(MultipartFile file, String csvName, String[] headers, Long csvShardIndex) {
+        BufferedReader in = null;
+        try {
+            // TODO: store and process later
+            in = new BufferedReader(new InputStreamReader(file.getInputStream()));
+        } catch (FileNotFoundException e) {
+            // TODO: return a file not found message
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        // parse
+        Iterable<CSVRecord> records = null;
+        try {
+            if (in != null) {
+                records = CSVFormat.EXCEL.parse(in);
+            }
+        } catch (IOException e) {
+            // TODO: return a file not found message
+        }
+
+        if (records != null) {
+            // TODO: batchSize
+            // different DB has different optimal size,
+            // like mysql https://dev.mysql.com/doc/refman/5.6/en/server-system-variables.html#sysvar_max_allowed_packet
+            int batchSize = 10; // TODO: set as 1000 or by different DB's optimal size, how to calculate it, write a script to test it
+
+            int lineCount = 0;
+            List<Object[]> batchLine = new ArrayList<>(batchSize);
+
+            for (CSVRecord record : records) {
+                List<String> line = new ArrayList<>(headers.length);
+                // TODO: get id by csvShardIndex = PREFIX + [GAP is filled by 0] + ID
+                for (String header : headers) {
+                    line.add(record.get(header));
+                }
+                lineCount++;
+
+                // batch update with batchSize
+                if (lineCount == batchSize) {
+                    // batch update
+                    csvDataService.insertIntoDataTable(csvName, headers.length, batchLine);
+
+                    // reset count and batchLine
+                    lineCount = 0;
+                    batchLine = new ArrayList<>(batchSize);
+
+                    // this record should be add to batchLine too
+                    lineCount++;
+                    batchLine.add(line.toArray());
+                } else if (lineCount < batchSize) {
+                    batchLine.add(line.toArray());
+                }
+            }
+
+            // process rest of data
+            if (lineCount > 0) {
+                csvDataService.insertIntoDataTable(csvName, headers.length, batchLine);
+            }
+
+        } else {
+            // TODO: no data message
+        }
+
+    }
+
 
     public void generateBigCsv() {
 
