@@ -101,7 +101,7 @@ public class CsvResource {
     @PostMapping(value = "/upload/multi")
     public CsvInfo uploadMultiCsv(
             @RequestPart("file") MultipartFile file,
-            @RequestParam(value = "csvShardIndex") Long csvShardIndex,
+            @RequestParam(value = "csvShardIndex") Integer csvShardIndex,
             @RequestParam(value = "csvHeaders") String[] csvHeaders
     ) throws SQLException {
 

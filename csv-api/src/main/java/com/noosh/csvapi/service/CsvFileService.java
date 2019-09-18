@@ -175,7 +175,7 @@ public class CsvFileService {
 
     }
 
-    public void parseExcelCsvAndInsertData(MultipartFile file, String csvName, String[] headers, Long csvShardIndex) {
+    public void parseExcelCsvAndInsertData(MultipartFile file, String csvName, String[] headers, int csvShardIndex) {
         BufferedReader in = null;
         try {
             // TODO: store and process later
@@ -200,14 +200,16 @@ public class CsvFileService {
             // TODO: batchSize
             // different DB has different optimal size,
             // like mysql https://dev.mysql.com/doc/refman/5.6/en/server-system-variables.html#sysvar_max_allowed_packet
-            int batchSize = 10; // TODO: set as 1000 or by different DB's optimal size, how to calculate it, write a script to test it
+            int batchSize = 1000; // TODO: set as 1000 or by different DB's optimal size, how to calculate it, write a script to test it
 
             int lineCount = 0;
             List<Object[]> batchLine = new ArrayList<>(batchSize);
 
+            int lineDataLength = headers.length;
             for (CSVRecord record : records) {
-                List<String> line = new ArrayList<>(headers.length);
-                // TODO: get id by csvShardIndex = PREFIX + [GAP is filled by 0] + ID
+                List<String> line = new ArrayList<>(lineDataLength);
+                // get id
+                line.add(CsvIdGenerator.get(csvShardIndex, lineCount));
                 for (String header : headers) {
                     line.add(record.get(header));
                 }
@@ -216,7 +218,7 @@ public class CsvFileService {
                 // batch update with batchSize
                 if (lineCount == batchSize) {
                     // batch update
-                    csvDataService.insertIntoDataTable(csvName, headers.length, batchLine);
+                    csvDataService.insertIntoDataTableWithId(csvName, lineDataLength, batchLine);
 
                     // reset count and batchLine
                     lineCount = 0;
@@ -232,7 +234,7 @@ public class CsvFileService {
 
             // process rest of data
             if (lineCount > 0) {
-                csvDataService.insertIntoDataTable(csvName, headers.length, batchLine);
+                csvDataService.insertIntoDataTableWithId(csvName, lineDataLength, batchLine);
             }
 
         } else {

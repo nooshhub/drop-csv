@@ -126,6 +126,28 @@ public class CsvDataService {
                 ")", batchLine);
     }
 
+    public void insertIntoDataTableWithId(String csvName, int columnSize, List<Object[]> batchLine) {
+        String csvDataTableName = "csv_data_" + csvName;
+        StringBuilder columnNameSb = new StringBuilder();
+        columnNameSb.append("id,");
+        StringBuilder columnParamSb = new StringBuilder();
+        columnParamSb.append("?,");
+        for (int i = 0; i < columnSize - 1; i++) {
+            columnNameSb.append("attr_" + i + ",");
+
+            columnParamSb.append("?,");
+        }
+
+        String insertColumns = columnNameSb.toString().substring(0, columnNameSb.toString().lastIndexOf(","));
+        String insertParams = columnParamSb.toString().substring(0, columnParamSb.toString().lastIndexOf(","));
+
+        jdbcTemplate.batchUpdate("INSERT INTO " + csvDataTableName + "(" +
+                insertColumns +
+                ") VALUES (" +
+                insertParams +
+                ")", batchLine);
+    }
+
     public CsvSearchResultVo searchCsv(String csvName) {
 
         String csvHeaderTableName = "csv_header_" + csvName;
