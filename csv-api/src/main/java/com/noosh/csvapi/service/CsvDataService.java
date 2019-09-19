@@ -30,46 +30,7 @@ public class CsvDataService {
     String csvInfoTableName = "csv_info";
 
     @Autowired
-    JdbcTemplate jdbcTemplate;
-
-    public void createCsvInfoTable() throws SQLException {
-        String datasourceUrl = null;
-        try {
-            datasourceUrl = jdbcTemplate.getDataSource().getConnection().getMetaData().getURL();
-        } catch (SQLException e) {
-            log.error("Non-fatal error: unable to get datasource for logging which database we are connected to.", e);
-        }
-        log.info("Datasource URL: " + datasourceUrl);
-
-        log.info("Creating tables if not exists: " + csvInfoTableName);
-        jdbcTemplate.execute("CREATE TABLE IF NOT EXISTS " + csvInfoTableName + " (" +
-                "ID SERIAL, csv_name VARCHAR(255), search_name VARCHAR(255))");
-    }
-
-    public CsvInfo insertCsvInfo(String csvFileName, String uniqueCsvSearchName) throws SQLException {
-        jdbcTemplate.update("INSERT INTO " + csvInfoTableName + "(csv_name, search_name) VALUES (?,?)", csvFileName, uniqueCsvSearchName);
-
-        return jdbcTemplate.queryForObject("SELECT * FROM " + csvInfoTableName + " WHERE search_name = '" + uniqueCsvSearchName + "'",
-                getCsvInfoRowMapper());
-    }
-
-    public boolean isCsvExist(String uniqueCsvSearchName) throws SQLException {
-        return jdbcTemplate.queryForObject("SELECT count(*) FROM " + csvInfoTableName + " WHERE search_name = '" + uniqueCsvSearchName + "'",
-                Integer.class) != 0;
-    }
-
-    private RowMapper<CsvInfo> getCsvInfoRowMapper() throws SQLException {
-        return new RowMapper<CsvInfo>() {
-            @Override
-            public CsvInfo mapRow(ResultSet rs, int rowNum) throws SQLException {
-                CsvInfo csvInfo = new CsvInfo();
-                csvInfo.setId(rs.getLong("id"));
-                csvInfo.setCsvName(rs.getString("csv_name"));
-                csvInfo.setSearchName(rs.getString("search_name"));
-                return csvInfo;
-            }
-        };
-    }
+    private JdbcTemplate jdbcTemplate;
 
     public void createCsvHeaderAndDataTable(String csvName, String[] headers) {
         log.info("Creating tables");
@@ -188,13 +149,7 @@ public class CsvDataService {
         return csvVo;
     }
 
-    public CsvInfo findCsvInfo(Long id) throws SQLException {
-        return jdbcTemplate.queryForObject("SELECT * FROM " + csvInfoTableName + " WHERE id = " + id + "",
-                getCsvInfoRowMapper());
-    }
 
-    public List<CsvInfo> findCsvList() throws SQLException {
-        return jdbcTemplate.query("SELECT * FROM " + csvInfoTableName, getCsvInfoRowMapper());
-    }
+
 
 }

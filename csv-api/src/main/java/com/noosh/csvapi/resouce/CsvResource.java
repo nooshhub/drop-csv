@@ -3,6 +3,7 @@ package com.noosh.csvapi.resouce;
 import com.noosh.csvapi.dao.CsvInfo;
 import com.noosh.csvapi.service.CsvDataService;
 import com.noosh.csvapi.service.CsvFileService;
+import com.noosh.csvapi.service.CsvInfoService;
 import com.noosh.csvapi.vo.CsvSearchResultVo;
 import com.noosh.csvapi.vo.CsvVo;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,6 +26,8 @@ public class CsvResource {
     @Autowired
     private CsvFileService csvFileService;
     @Autowired
+    private CsvInfoService csvInfoService;
+    @Autowired
     private CsvDataService csvDataService;
 
     /**
@@ -39,19 +42,19 @@ public class CsvResource {
                     int skipCount) throws SQLException {
 
         // create csv info table if not exist
-        csvDataService.createCsvInfoTable();
+        csvInfoService.createCsvInfoTable();
 
         String csvFileName = file.getOriginalFilename();
 
         String uniqueCsvSearchName = csvFileName.substring(0, csvFileName.lastIndexOf(".")).toLowerCase();
-        if(csvDataService.isCsvExist(uniqueCsvSearchName)) {
+        if(csvInfoService.isCsvExist(uniqueCsvSearchName)) {
             // TODO:
             // 1. we can update the table instead of throw exception, but the front-end should have a confirmation for updating
             // 2. we can also not delete and update, we can create new table, can rename the table name to switch it, and then drop the old table
             throw new RuntimeException("csv is exist");
         } else {
             // insert csv info if not exist
-            CsvInfo csvInfo = csvDataService.insertCsvInfo(csvFileName, uniqueCsvSearchName);
+            CsvInfo csvInfo = csvInfoService.insertCsvInfo(csvFileName, uniqueCsvSearchName);
 
             // get headers
             String[] headers = csvFileService.getCsvHeaders(file, skipCount);
@@ -75,17 +78,17 @@ public class CsvResource {
 
         String csvFileName = csvVo.getCsvFileName();
         // create csv info table if not exist
-        csvDataService.createCsvInfoTable();
+        csvInfoService.createCsvInfoTable();
 
         String uniqueCsvSearchName = csvFileName.substring(0, csvFileName.lastIndexOf(".")).toLowerCase();
-        if(csvDataService.isCsvExist(uniqueCsvSearchName)) {
+        if(csvInfoService.isCsvExist(uniqueCsvSearchName)) {
             // TODO:
             // 1. we can update the table instead of throw exception, but the front-end should have a confirmation for updating
             // 2. we can also not delete and update, we can create new table, can rename the table name to switch it, and then drop the old table
             throw new RuntimeException("csv is exist");
         } else {
             // insert csv info if not exist
-            CsvInfo csvInfo = csvDataService.insertCsvInfo(csvFileName, uniqueCsvSearchName);
+            CsvInfo csvInfo = csvInfoService.insertCsvInfo(csvFileName, uniqueCsvSearchName);
 
             // get headers
             String[] headers = csvVo.getCsvHeaders();
@@ -110,7 +113,7 @@ public class CsvResource {
     ) throws SQLException {
 
         String uniqueCsvSearchName = csvFileName.substring(0, csvFileName.lastIndexOf(".")).toLowerCase();
-        if(csvDataService.isCsvExist(uniqueCsvSearchName)) {
+        if(csvInfoService.isCsvExist(uniqueCsvSearchName)) {
             // get headers
             String[] headers = csvHeaders; //TODO: get it from csv_header_*
 
@@ -126,12 +129,12 @@ public class CsvResource {
     @GetMapping(value = "/info/{id}")
     public CsvInfo findCsvInfo(
             @PathVariable("id") Long id) throws SQLException {
-        return csvDataService.findCsvInfo(id);
+        return csvInfoService.findCsvInfo(id);
     }
 
     @GetMapping(value = "/list")
     public List<CsvInfo> findCsvList() throws SQLException {
-        return csvDataService.findCsvList();
+        return csvInfoService.findCsvList();
     }
 
     @GetMapping(value = "/export")
