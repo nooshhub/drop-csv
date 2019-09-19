@@ -27,36 +27,23 @@ import java.util.stream.Collectors;
 public class CsvDataService {
 
     private static final Logger log = LoggerFactory.getLogger(CsvDataService.class);
-    String csvInfoTableName = "csv_info";
 
     @Autowired
     private JdbcTemplate jdbcTemplate;
 
-    public void createCsvHeaderAndDataTable(String csvName, String[] headers) {
-        log.info("Creating tables");
-        // csv_header_uhg
-        String csvHeaderTableName = "csv_header_" + csvName;
-
-        jdbcTemplate.execute("DROP TABLE " + csvHeaderTableName + " IF EXISTS");
-        jdbcTemplate.execute("CREATE TABLE " + csvHeaderTableName + "(" +
-                "id SERIAL, header_name VARCHAR(255), column_name VARCHAR(255))");
-
-        List<Object[]> headerAndColNames = new ArrayList<>(headers.length);
+    public void createCsvDataTable(String csvName, String[] headers) {
+        log.info("Creating tables csv_data");
+        // prepare columns
         StringBuilder colNameSb = new StringBuilder();
         for (int i = 0; i < headers.length; i++) {
-            String headerName = headers[i];
             String colName = "attr_" + i;
-            headerAndColNames.add(new String[]{headerName, colName});
 
             colNameSb.append(", ");
             colNameSb.append(colName);
             colNameSb.append(" VARCHAR(255) ");
         }
 
-        headerAndColNames.forEach(name -> log.info(String.format("Inserting " + csvHeaderTableName + " record for %s %s", name[0], name[1])));
-        jdbcTemplate.batchUpdate("INSERT INTO " + csvHeaderTableName + "(header_name, column_name) VALUES (?,?)", headerAndColNames);
-
-        // csv_data_uhg
+        // create csv_data table
         String csvDataTableName = "csv_data_" + csvName;
         jdbcTemplate.execute("DROP TABLE " + csvDataTableName + " IF EXISTS");
         jdbcTemplate.execute("CREATE TABLE " + csvDataTableName + "(" +

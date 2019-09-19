@@ -3,8 +3,10 @@ package com.noosh.csvapi.resouce;
 import com.noosh.csvapi.dao.CsvInfo;
 import com.noosh.csvapi.service.CsvDataService;
 import com.noosh.csvapi.service.CsvFileService;
+import com.noosh.csvapi.service.CsvHeaderService;
 import com.noosh.csvapi.service.CsvInfoService;
 import com.noosh.csvapi.vo.CsvSearchResultVo;
+import com.noosh.csvapi.vo.CsvShardVo;
 import com.noosh.csvapi.vo.CsvVo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -27,6 +29,8 @@ public class CsvResource {
     private CsvFileService csvFileService;
     @Autowired
     private CsvInfoService csvInfoService;
+    @Autowired
+    private CsvHeaderService csvHeaderService;
     @Autowired
     private CsvDataService csvDataService;
 
@@ -60,7 +64,8 @@ public class CsvResource {
             String[] headers = csvFileService.getCsvHeaders(file, skipCount);
 
             // create csv header and data table
-            csvDataService.createCsvHeaderAndDataTable(uniqueCsvSearchName, headers);
+            csvHeaderService.createCsvHeaderTable(uniqueCsvSearchName, headers);
+            csvDataService.createCsvDataTable(uniqueCsvSearchName, headers);
 
             // parse excel and insert data into created table
             csvFileService.parseExcelCsv(file, uniqueCsvSearchName, headers, skipCount);
@@ -94,7 +99,8 @@ public class CsvResource {
             String[] headers = csvVo.getCsvHeaders();
 
             // create csv header and data table
-            csvDataService.createCsvHeaderAndDataTable(uniqueCsvSearchName, headers);
+            csvHeaderService.createCsvHeaderTable(uniqueCsvSearchName, headers);
+            csvDataService.createCsvDataTable(uniqueCsvSearchName, headers);
 
             // return csvInfo
             return csvInfo;
@@ -105,7 +111,7 @@ public class CsvResource {
 
 
     @PostMapping(value = "/upload/multi")
-    public CsvSearchResultVo uploadMultiCsv(
+    public CsvShardVo uploadMultiCsv(
             @RequestPart("file") MultipartFile file,
             @RequestParam(value = "csvShardIndex") Integer csvShardIndex,
             @RequestParam(value = "csvHeaders") String[] csvHeaders,
@@ -122,7 +128,8 @@ public class CsvResource {
 
         }
 
-        return csvDataService.searchCsv(uniqueCsvSearchName, 1, 10);
+        // TODO: shardVo should also have size
+        return new CsvShardVo(csvShardIndex);
 
     }
 
