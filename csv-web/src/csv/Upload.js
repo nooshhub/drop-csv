@@ -101,7 +101,7 @@ class App extends Component {
 
                 // slice file
                 const totalSize = file.size;
-                const shardCapacity = 10 * 1024 * 1024; // one shard 10M
+                const shardCapacity = 2 * 1024 * 1024; // one shard 10M
                 const shardSize = Math.ceil(totalSize / shardCapacity);
                 let files = [];
                 let sliceStart = 0;
