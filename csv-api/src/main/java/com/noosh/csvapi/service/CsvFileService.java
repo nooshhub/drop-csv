@@ -190,7 +190,9 @@ public class CsvFileService {
         Iterable<CSVRecord> records = null;
         try {
             if (in != null) {
-                records = CSVFormat.EXCEL.withHeader(headers).parse(in);
+                records = CSVFormat.EXCEL
+                        .withHeader(headers)
+                        .parse(in);
             }
         } catch (IOException e) {
             // TODO: return a file not found message
@@ -212,9 +214,21 @@ public class CsvFileService {
                 List<String> line = new ArrayList<>(lineDataLength);
                 // get id
                 line.add(CsvIdGenerator.get(csvShardIndex, lineCount));
-                for (String header : headers) {
-                    line.add(record.get(header));
+                if(record.size() != headers.length) {
+                    for (int i = 0 ; i < record.size() ; i++) {
+                        line.add(record.get(i));
+                    }
+
+                    // append null to make the line complete for batch insert
+//                    for (int i = 0 ; i < headers.length - record.size() ; i++) {
+//                        line.add(null);
+//                    }
+                } else {
+                    for (int i = 0 ; i < headers.length ; i++) {
+                        line.add(record.get(i));
+                    }
                 }
+
 
                 // batch update with batchSize
                 if ((lineCount % batchSize) == 0) {
@@ -227,7 +241,7 @@ public class CsvFileService {
                 }
 
                 // this record should be add to batchLine too
-                batchLine.add(line.toArray());
+                batchLine.add(line.toArray(new Object[lineDataLength]));
                 lineCount++;
             }
 

@@ -99,14 +99,15 @@ class App extends Component {
                     dataSource.push(line);
                 }
 
+                // slice file
                 const totalSize = file.size;
-                const shardCapacity = 10 * 1024 * 1024; // one shard 2M
+                const shardCapacity = 10 * 1024 * 1024; // one shard 10M
                 const shardSize = Math.ceil(totalSize / shardCapacity);
                 let files = [];
                 let sliceStart = 0;
                 let sliceEnd = 0;
-                for (let i = 1; i <= shardSize; i++) {
-                    sliceEnd = i * shardCapacity;
+                for (let i = 0; i < shardSize; i++) {
+                    sliceEnd = (i + 1) * shardCapacity;
                     files[i] = file.slice(sliceStart, sliceEnd);
                     sliceStart = sliceEnd;
                 }
