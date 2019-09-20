@@ -250,6 +250,7 @@ public class CsvFileService {
                 csvDataService.insertIntoDataTableWithId(csvName, lineDataLength, batchLine);
             }
 
+            System.out.println(lineCount);
         } else {
             // TODO: no data message
             System.out.println("No Data Message");

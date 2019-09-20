@@ -23,7 +23,7 @@ public class MockCsvFileService {
         }
 
         try (FileWriter fileWriter = new FileWriter(fileName, true);
-             CSVPrinter printer = CSVFormat.DEFAULT.withHeader(Headers.class).print(fileWriter);) {
+             CSVPrinter printer = CSVFormat.EXCEL.withHeader(Headers.class).print(fileWriter);) {
 
             for (int i = 0; i < csvLineSize; i++) {
                 printer.printRecord(
