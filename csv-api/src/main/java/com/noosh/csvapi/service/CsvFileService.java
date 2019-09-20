@@ -214,8 +214,8 @@ public class CsvFileService {
                 List<String> line = new ArrayList<>(lineDataLength);
                 // get id
                 line.add(CsvIdGenerator.get(csvShardIndex, lineCount));
-                if(record.size() != headers.length) {
-                    for (int i = 0 ; i < record.size() ; i++) {
+                if (record.size() != headers.length) {
+                    for (int i = 0; i < record.size(); i++) {
                         line.add(record.get(i));
                     }
 
@@ -224,14 +224,14 @@ public class CsvFileService {
 //                        line.add(null);
 //                    }
                 } else {
-                    for (int i = 0 ; i < headers.length ; i++) {
+                    for (int i = 0; i < headers.length; i++) {
                         line.add(record.get(i));
                     }
                 }
 
 
                 // batch update with batchSize
-                if ((lineCount % batchSize) == 0) {
+                if (lineCount != 0 && (lineCount % batchSize) == 0) {
                     // batch update
                     csvDataService.insertIntoDataTableWithId(csvName, lineDataLength, batchLine);
                     // reset count and batchLine
@@ -250,6 +250,8 @@ public class CsvFileService {
                 csvDataService.insertIntoDataTableWithId(csvName, lineDataLength, batchLine);
             }
 
+            System.out.println(batchTimes);
+            System.out.println(batchSize * batchTimes);
             System.out.println(lineCount);
         } else {
             // TODO: no data message

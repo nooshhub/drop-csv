@@ -42,4 +42,13 @@ public class CsvApiApplicationTests {
         mockCsvFileService.generateBigCsv(CSV_LINE_SIZE, fileName);
     }
 
+    @Test
+    public void testDivide() {
+        System.out.println(0 % 10);
+        System.out.println(1 % 10);
+        System.out.println(10 % 10);
+        System.out.println(11 % 10);
+        System.out.println(20 % 10);
+    }
+
 }
