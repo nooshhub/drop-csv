@@ -101,7 +101,7 @@ class App extends Component {
 
                 // slice file
                 const totalSize = file.size;
-                const shardCapacity = 2 * 1024 * 1024; // one shard 10M
+                const shardCapacity = 4 * 1024 * 1024; // one shard 4M
                 const shardSize = Math.ceil(totalSize / shardCapacity);
                 let files = [];
                 let sliceStart = 0;
@@ -170,8 +170,7 @@ class App extends Component {
                     const formData = new FormData();
                     formData.append('file', fileList[i]);
                     formData.append('csvShardIndex', i);
-                    formData.append('csvHeaders', headers);
-                    formData.append('csvFileName', fileName);
+                    formData.append('csvId', this.state.csvId);
 
                     this.setState({
                         uploading: true,
@@ -235,10 +234,6 @@ class App extends Component {
                         <Icon type="inbox" />
                     </p>
                     <p className="ant-upload-text">Click or drag file to this area to upload</p>
-                    <p className="ant-upload-hint">
-                        Support for a single or bulk upload. Strictly prohibit from uploading company data or other
-                        band files
-                    </p>
                 </Dragger>
 
             );

@@ -1,5 +1,6 @@
 package com.noosh.csvapi.resouce;
 
+import com.noosh.csvapi.dao.CsvHeader;
 import com.noosh.csvapi.dao.CsvInfo;
 import com.noosh.csvapi.service.CsvDataService;
 import com.noosh.csvapi.service.CsvFileService;
@@ -15,6 +16,7 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.websocket.server.PathParam;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * @author Neal Shan
@@ -34,47 +36,6 @@ public class CsvResource {
     @Autowired
     private CsvDataService csvDataService;
 
-    /**
-     * TODO:
-     * 2. we will need fileShardIndex, when it's 0, we will read header and create header table
-     * 3. csvName should use file name as default, but the user can change it, will check if it is exist
-     */
-    @PostMapping(value = "/upload")
-    public CsvInfo uploadCsv(
-            @RequestPart("file") MultipartFile file,
-            @RequestParam(value = "headerLineNum", required = false, defaultValue = "0")
-                    int skipCount) throws SQLException {
-
-        // create csv info table if not exist
-        csvInfoService.createCsvInfoTable();
-
-        String csvFileName = file.getOriginalFilename();
-
-        String uniqueCsvSearchName = csvFileName.substring(0, csvFileName.lastIndexOf(".")).toLowerCase();
-        if(csvInfoService.isCsvExist(uniqueCsvSearchName)) {
-            // TODO:
-            // 1. we can update the table instead of throw exception, but the front-end should have a confirmation for updating
-            // 2. we can also not delete and update, we can create new table, can rename the table name to switch it, and then drop the old table
-            throw new RuntimeException("csv is exist");
-        } else {
-            // insert csv info if not exist
-            CsvInfo csvInfo = csvInfoService.insertCsvInfo(csvFileName, uniqueCsvSearchName);
-
-            // get headers
-            String[] headers = csvFileService.getCsvHeaders(file, skipCount);
-
-            // create csv header and data table
-            csvHeaderService.createCsvHeaderTable(uniqueCsvSearchName, headers);
-            csvDataService.createCsvDataTable(uniqueCsvSearchName, headers);
-
-            // parse excel and insert data into created table
-            csvFileService.parseExcelCsv(file, uniqueCsvSearchName, headers, skipCount);
-
-            // return csvInfo
-            return csvInfo;
-        }
-
-    }
 
     @PostMapping(value = "/upload/init")
     public CsvInfo uploadCsvInit(
@@ -102,7 +63,6 @@ public class CsvResource {
             csvHeaderService.createCsvHeaderTable(uniqueCsvSearchName, headers);
             csvDataService.createCsvDataTable(uniqueCsvSearchName, headers);
 
-            // return csvInfo
             return csvInfo;
         }
 
@@ -113,23 +73,25 @@ public class CsvResource {
     @PostMapping(value = "/upload/multi")
     public CsvShardVo uploadMultiCsv(
             @RequestPart("file") MultipartFile file,
-            @RequestParam(value = "csvShardIndex") Integer csvShardIndex,
-            @RequestParam(value = "csvHeaders") String[] csvHeaders,
-            @RequestParam(value = "csvFileName") String csvFileName
+            @RequestParam(value = "csvId") Long csvId,
+            @RequestParam(value = "csvShardIndex") Integer csvShardIndex
     ) throws SQLException {
 
-        String uniqueCsvSearchName = csvFileName.substring(0, csvFileName.lastIndexOf(".")).toLowerCase();
-        if(csvInfoService.isCsvExist(uniqueCsvSearchName)) {
+        CsvInfo csvInfo = csvInfoService.findCsvInfo(csvId);
+        if(csvInfo != null) {
+            List<CsvHeader> csvHeaders = csvHeaderService.findHeaders(csvInfo.getSearchName());
             // get headers
-            String[] headers = csvHeaders; //TODO: get it from csv_header_*
+            String[] headers = csvHeaders.stream()
+                    .map(CsvHeader::getHeaderName)
+                    .collect(Collectors.toList())
+                    .toArray(new String[csvHeaders.size()]);
 
             // parse excel and insert data into created table
-            csvFileService.parseExcelCsvAndInsertData(file, uniqueCsvSearchName, headers, csvShardIndex);
+            csvFileService.parseExcelCsvAndInsertData(file, csvInfo.getSearchName(), headers, csvShardIndex);
 
         }
 
-        // TODO: shardVo should also have size
-        return new CsvShardVo(csvShardIndex);
+        return new CsvShardVo(csvShardIndex, file.getSize());
 
     }
 

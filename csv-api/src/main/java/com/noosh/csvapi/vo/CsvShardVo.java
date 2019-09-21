@@ -6,9 +6,20 @@ package com.noosh.csvapi.vo;
  */
 public class CsvShardVo {
     private Integer csvShardIndex;
+    private Long csvShardSize;
 
-    public CsvShardVo(Integer csvShardIndex) {
+    public CsvShardVo(Integer csvShardIndex, Long csvShardSize) {
         this.csvShardIndex = csvShardIndex;
+        this.csvShardSize = csvShardSize;
+    }
+
+
+    public Long getCsvShardSize() {
+        return csvShardSize;
+    }
+
+    public void setCsvShardSize(Long csvShardSize) {
+        this.csvShardSize = csvShardSize;
     }
 
     public Integer getCsvShardIndex() {

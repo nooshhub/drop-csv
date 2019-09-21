@@ -33,7 +33,7 @@ public class CsvHeaderService {
 
         jdbcTemplate.execute("DROP TABLE " + csvHeaderTableName + " IF EXISTS");
         jdbcTemplate.execute("CREATE TABLE " + csvHeaderTableName + "(" +
-                "id SERIAL, header_name VARCHAR(255), column_name VARCHAR(255))");
+                "id IDENTITY, header_name VARCHAR(255), column_name VARCHAR(255))");
 
         List<Object[]> headerAndColNames = new ArrayList<>(headers.length);
         for (int i = 0; i < headers.length; i++) {
@@ -47,6 +47,17 @@ public class CsvHeaderService {
 
     }
 
+    public List<CsvHeader> findHeaders(String searchName) {
+        String csvHeaderTableName = "csv_header_" + searchName;
+        log.info("Querying for " + csvHeaderTableName + " records");
+        List<CsvHeader> csvHeaders = jdbcTemplate.query(
+                "SELECT id, header_name, column_name FROM " + csvHeaderTableName,
+                (rs, rowNum) -> new CsvHeader(rs.getLong("id"),
+                        rs.getString("header_name"),
+                        rs.getString("column_name"))
 
+        );
 
+        return csvHeaders;
+    }
 }

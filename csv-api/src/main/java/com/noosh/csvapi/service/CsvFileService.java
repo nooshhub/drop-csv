@@ -1,7 +1,6 @@
 package com.noosh.csvapi.service;
 
 import org.apache.commons.csv.CSVFormat;
-import org.apache.commons.csv.CSVPrinter;
 import org.apache.commons.csv.CSVRecord;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -62,118 +61,9 @@ public class CsvFileService {
         }
     }
 
-    /**
-     * read the last line by skipLineCount and split it by comma as headers
-     *
-     * @param file          uploaded file
-     * @param skipLineCount start from 0
-     * @return headers
-     */
-    public String[] getCsvHeaders(MultipartFile file, int skipLineCount) {
-        BufferedReader in = null;
-        try {
-            // TODO: store and process later
-            in = new BufferedReader(new InputStreamReader(file.getInputStream()));
-        } catch (FileNotFoundException e) {
-            // TODO: return a file not found message
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
 
-        // skip lines
-        try {
-            if (in != null) {
-                for (int i = 0; i <= skipLineCount; i++) {
-                    String lineData = in.readLine();
-                    if (i == skipLineCount) {
-                        return lineData.split(",");
-                    }
-                }
-            }
-        } catch (IOException e) {
-            // TODO: return no content message
-        }
-
-        return null;
-    }
-
-    public void parseExcelCsv(MultipartFile file, String csvName, String[] headers, int skipLineCount) {
-        BufferedReader in = null;
-        try {
-            // TODO: store and process later
-            in = new BufferedReader(new InputStreamReader(file.getInputStream()));
-        } catch (FileNotFoundException e) {
-            // TODO: return a file not found message
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        // skip lines
-        try {
-            if (in != null) {
-                for (int i = 0; i < skipLineCount; i++) {
-                    in.readLine();
-                }
-            }
-        } catch (IOException e) {
-            // TODO: return no content message
-        }
-
-
-        // parse
-        Iterable<CSVRecord> records = null;
-        try {
-            if (in != null) {
-                records = CSVFormat.EXCEL.withFirstRecordAsHeader().parse(in);
-            }
-        } catch (IOException e) {
-            // TODO: return a file not found message
-        }
-
-        if (records != null) {
-            // TODO: batchSize
-            // different DB has different optimal size,
-            // like mysql https://dev.mysql.com/doc/refman/5.6/en/server-system-variables.html#sysvar_max_allowed_packet
-            int batchSize = 10; // TODO: set as 1000 or by different DB's optimal size, how to calculate it, write a script to test it
-
-            int lineCount = 0;
-            List<Object[]> batchLine = new ArrayList<>(batchSize);
-
-            for (CSVRecord record : records) {
-                List<String> line = new ArrayList<>(headers.length);
-                for (String header : headers) {
-                    line.add(record.get(header));
-                }
-                lineCount++;
-
-                // batch update with batchSize
-                if (lineCount == batchSize) {
-                    // batch update
-                    csvDataService.insertIntoDataTable(csvName, headers.length, batchLine);
-
-                    // reset count and batchLine
-                    lineCount = 0;
-                    batchLine = new ArrayList<>(batchSize);
-
-                    // this record should be add to batchLine too
-                    lineCount++;
-                    batchLine.add(line.toArray());
-                } else if (lineCount < batchSize) {
-                    batchLine.add(line.toArray());
-                }
-            }
-
-            // process rest of data
-            if (lineCount > 0) {
-                csvDataService.insertIntoDataTable(csvName, headers.length, batchLine);
-            }
-
-        } else {
-            // TODO: no data message
-        }
-
-    }
-
+    // TODO: we may not need headers anymore, use headersSize is enough
+    // TODO: we may use multi thead to insert data into database
     public void parseExcelCsvAndInsertData(MultipartFile file, String csvName, String[] headers, int csvShardIndex) {
         BufferedReader in = null;
         try {

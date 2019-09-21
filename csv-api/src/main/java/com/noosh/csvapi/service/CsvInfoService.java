@@ -43,7 +43,7 @@ public class CsvInfoService {
 
         log.info("Creating tables if not exists: " + csvInfoTableName);
         jdbcTemplate.execute("CREATE TABLE IF NOT EXISTS " + csvInfoTableName + " (" +
-                "ID SERIAL, csv_name VARCHAR(255), search_name VARCHAR(255))");
+                "ID IDENTITY, csv_name VARCHAR(255), search_name VARCHAR(255))");
     }
 
     public CsvInfo insertCsvInfo(String csvFileName, String uniqueCsvSearchName) throws SQLException {
