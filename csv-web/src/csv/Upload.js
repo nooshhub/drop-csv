@@ -39,6 +39,7 @@ class App extends Component {
             columns: [],
             dataSource: [],
             fileList: [],
+            fileName: null,
             uploading: false,
             csvId: null,
             currentStep: 0,
@@ -119,6 +120,7 @@ class App extends Component {
                 this.setState(state => ({
                     columns: columns,
                     dataSource: dataSource,
+                    fileName: file.name,
                     fileList: [...state.fileList, ...files],
                     currentStep: state.currentStep + 1,
                 }));
@@ -137,15 +139,13 @@ class App extends Component {
 
     handleUpload = () => {
 
-        const { fileList, selectedRowKeys, dataSource, columns } = this.state;
+        const { fileList, selectedRowKeys, dataSource, columns, fileName } = this.state;
 
         const headerSize = columns.length;
         const headers = [];
         for (let i = 0; i < headerSize; i++) {
             headers.push(dataSource[selectedRowKeys[0]]['attr' + i]);
         }
-
-        const fileName = "test.csv";
 
         // 1. init csv table
         reqwest({
