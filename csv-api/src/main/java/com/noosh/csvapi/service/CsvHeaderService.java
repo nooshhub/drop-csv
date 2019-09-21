@@ -49,7 +49,7 @@ public class CsvHeaderService {
 
     public List<CsvHeader> findHeaders(String searchName) {
         String csvHeaderTableName = "csv_header_" + searchName;
-        log.info("Querying for " + csvHeaderTableName + " records");
+        
         List<CsvHeader> csvHeaders = jdbcTemplate.query(
                 "SELECT id, header_name, column_name FROM " + csvHeaderTableName,
                 (rs, rowNum) -> new CsvHeader(rs.getLong("id"),
