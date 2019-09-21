@@ -100,28 +100,10 @@ class App extends Component {
                     dataSource.push(line);
                 }
 
-                // slice file
-                const totalSize = file.size;
-                const shardCapacity = 4 * 1024 * 1024; // one shard 4M
-                const shardSize = Math.ceil(totalSize / shardCapacity);
-                let files = [];
-                let sliceStart = 0;
-                let sliceEnd = 0;
-                for (let i = 0; i < shardSize; i++) {
-                    sliceEnd = (i + 1) * shardCapacity;
-                    files[i] = file.slice(sliceStart, sliceEnd);
-                    sliceStart = sliceEnd;
-                }
-
-                console.log(totalSize);
-                console.log(shardSize);
-                console.log(files);
-
                 this.setState(state => ({
                     columns: columns,
                     dataSource: dataSource,
-                    fileName: file.name,
-                    fileList: [...state.fileList, ...files],
+                    fileList: [...state.fileList, file],
                     currentStep: state.currentStep + 1,
                 }));
 
@@ -137,15 +119,62 @@ class App extends Component {
         return false;
     }
 
+    /**
+     * user FileReader to read slicedFile which is Blob as Text, and we will match the \n to find the end line
+     */
+    calcEndLineIndex = (slicedBlob) => {
+        let index = 0;
+
+        let reader = new FileReader();
+        reader.onloadend = (evt) => {
+            let data = evt.target.result;
+            let lines = data.split('\n');
+
+            for (let i = 0; i < lines.length; i++) {
+                index = index + lines[i].length + 1;
+            }
+
+            console.log(index);
+            return index;
+        };
+        reader.readAsText(slicedBlob);
+
+        // return index;
+        
+    }
+
+
     handleUpload = () => {
 
-        const { fileList, selectedRowKeys, dataSource, columns, fileName } = this.state;
+        const { fileList, selectedRowKeys, dataSource, columns } = this.state;
 
+        const file = fileList[0];
+        const fileName = file.name;
         const headerSize = columns.length;
         const headers = [];
         for (let i = 0; i < headerSize; i++) {
             headers.push(dataSource[selectedRowKeys[0]]['attr' + i]);
         }
+
+
+        // slice file
+        const totalSize = file.size;
+        const shardCapacity = 4 * 1024 * 1024; // one shard 4M
+        const shardSize = Math.ceil(totalSize / shardCapacity);
+        let shards = [];
+        let sliceStart = 0;
+        let sliceEnd = 0;
+        // TODO; loop until we met the totalSize
+        for (let i = 0; i < shardSize; i++) {
+            sliceEnd = (i + 1) * shardCapacity;
+            // find the endline index and slice file with the real endline index
+            // TODO: why undefined, how do i get it, what is the await response
+            let endLineIndex = this.calcEndLineIndex(file.slice(sliceStart, sliceEnd));
+            console.log(endLineIndex);
+            shards[i] = file.slice(sliceStart, endLineIndex);
+            sliceStart = endLineIndex;
+        }
+
 
         // 1. init csv table
         reqwest({
@@ -166,9 +195,9 @@ class App extends Component {
 
 
                 // 2. upload files 
-                for (let i = 0; i < fileList.length; i++) {
+                for (let i = 0; i < shards.length; i++) {
                     const formData = new FormData();
-                    formData.append('file', fileList[i]);
+                    formData.append('file', shards[i]);
                     formData.append('csvShardIndex', i);
                     formData.append('csvId', this.state.csvId);
 
