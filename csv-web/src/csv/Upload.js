@@ -120,26 +120,45 @@ class App extends Component {
     }
 
     /**
-     * user FileReader to read slicedFile which is Blob as Text, and we will match the \n to find the end line
+     * use FileReader to read slicedFile which is Blob as Text, 
+     * and we will match the \n to find the end line
      */
-    calcEndLineIndex = (slicedBlob) => {
-        let index = 0;
+    uploadShards = (file) => {
+
+        const totalSize = file.size;
+        const shardCapacity = 4 * 1024 * 1024; // one shard 4M
+        const shardSize = Math.ceil(totalSize / shardCapacity);
+        let shardTimes = 0;
+        let sliceStart = 0;
+        let sliceEnd = 0;
+        
 
         let reader = new FileReader();
-        reader.onloadend = (evt) => {
+        reader.onload = (evt) => {
             let data = evt.target.result;
             let lines = data.split('\n');
 
             for (let i = 0; i < lines.length; i++) {
-                index = index + lines[i].length + 1;
+                sliceEnd = sliceEnd + lines[i].length + 1;
+                if(sliceEnd >= ((shardTimes + 1) * shardCapacity)) {
+                    const shard = file.slice(sliceStart, sliceEnd);
+                    sliceStart = sliceEnd;
+
+                    this.uploadShard(shard, shardTimes);
+
+                    shardTimes++;
+                    
+                }
+                
             }
 
-            console.log(index);
-            return index;
-        };
-        reader.readAsText(slicedBlob);
+            if(totalSize - sliceStart > 0) {
+                const shard = file.slice(sliceStart, totalSize);
+                this.uploadShard(shard, shardTimes);
+            }
 
-        // return index;
+        };
+        reader.readAsText(file);
         
     }
 
@@ -154,25 +173,6 @@ class App extends Component {
         const headers = [];
         for (let i = 0; i < headerSize; i++) {
             headers.push(dataSource[selectedRowKeys[0]]['attr' + i]);
-        }
-
-
-        // slice file
-        const totalSize = file.size;
-        const shardCapacity = 4 * 1024 * 1024; // one shard 4M
-        const shardSize = Math.ceil(totalSize / shardCapacity);
-        let shards = [];
-        let sliceStart = 0;
-        let sliceEnd = 0;
-        // TODO; loop until we met the totalSize
-        for (let i = 0; i < shardSize; i++) {
-            sliceEnd = (i + 1) * shardCapacity;
-            // find the endline index and slice file with the real endline index
-            // TODO: why undefined, how do i get it, what is the await response
-            let endLineIndex = this.calcEndLineIndex(file.slice(sliceStart, sliceEnd));
-            console.log(endLineIndex);
-            shards[i] = file.slice(sliceStart, endLineIndex);
-            sliceStart = endLineIndex;
         }
 
 
@@ -195,39 +195,8 @@ class App extends Component {
 
 
                 // 2. upload files 
-                for (let i = 0; i < shards.length; i++) {
-                    const formData = new FormData();
-                    formData.append('file', shards[i]);
-                    formData.append('csvShardIndex', i);
-                    formData.append('csvId', this.state.csvId);
+                this.uploadShards(file);
 
-                    this.setState({
-                        uploading: true,
-                    })
-
-                    reqwest({
-                        url: uploadServerHost + '/csv/upload/multi',
-                        method: 'post',
-                        processData: false,
-                        data: formData,
-                        success: (data) => {
-
-                            this.setState(state => ({
-                                // fileList: [],
-                                uploading: false,
-                                // csvId: data.id,
-                                // currentStep: state.currentStep + 1,
-                            }));
-                            message.success('upload successfuly');
-                        },
-                        error: () => {
-                            this.setState({
-                                uploading: false,
-                            });
-                            message.error('upload failed');
-                        },
-                    });
-                }
 
             },
             error: () => {
@@ -299,6 +268,36 @@ class App extends Component {
                 </div>
             );
         }
+    }
+
+    uploadShard(shard, shardTimes) {
+
+        const formData = new FormData();
+        formData.append('file', shard);
+        formData.append('csvShardIndex', shardTimes);
+        formData.append('csvId', this.state.csvId);
+        this.setState({
+            uploading: true,
+        });
+        reqwest({
+            url: uploadServerHost + '/csv/upload/multi',
+            method: 'post',
+            processData: false,
+            data: formData,
+            success: (data) => {
+                this.setState(state => ({
+                    // fileList: [],
+                    uploading: false,
+                }));
+                message.success('upload successfuly');
+            },
+            error: () => {
+                this.setState({
+                    uploading: false,
+                });
+                message.error('upload failed');
+            },
+        });
     }
 
     render() {
