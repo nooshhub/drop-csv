@@ -41,8 +41,10 @@ class App extends React.Component {
             <div className="logo" />
             <Menu theme="dark" onClick={this.handleClick} selectedKeys={[this.state.current]} mode="inline">
               <Menu.Item key="todo">
-                <Icon type="desktop" />
-                <Link to='/todo'>Todo</Link>
+                <span>
+                  <Icon type="desktop" />
+                  <Link to='/todo'>Todo</Link>
+                </span>
               </Menu.Item>
               <SubMenu
                 title={
