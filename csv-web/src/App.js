@@ -7,6 +7,7 @@ import List from './csv/List';
 import Edit from './csv/Edit';
 
 import './App.css';
+import TodoApp from './todo/TodoApp';
 
 const { Header, Content, Footer, Sider } = Layout;
 const { SubMenu } = Menu;
@@ -39,6 +40,10 @@ class App extends React.Component {
           <Sider collapsible collapsed={this.state.collapsed} onCollapse={this.onCollapse}>
             <div className="logo" />
             <Menu theme="dark" onClick={this.handleClick} selectedKeys={[this.state.current]} mode="inline">
+              <Menu.Item key="todo">
+                <Icon type="desktop" />
+                <Link to='/todo'>Todo</Link>
+              </Menu.Item>
               <SubMenu
                 title={
                   <span className="submenu-title-wrapper">
@@ -71,11 +76,12 @@ class App extends React.Component {
                 <Route path='/csv/upload' component={Upload}></Route>
                 <Route path='/csv/list' component={List}></Route>
                 <Route path='/csv/edit/:id' component={Edit}></Route>
+                <Route path='/todo' component={TodoApp}></Route>
               </div>
             </Content>
 
             <Footer style={{ textAlign: 'center' }}>CSV Design ©2019 Created by CSV</Footer>
-            
+
           </Layout>
 
         </Layout>
