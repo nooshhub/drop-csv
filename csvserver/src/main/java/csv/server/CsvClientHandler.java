@@ -18,10 +18,27 @@ import java.util.Date;
 public class CsvClientHandler extends ChannelInboundHandlerAdapter {
 
     @Override
+    public void channelActive(ChannelHandlerContext ctx) throws Exception {
+        ctx.writeAndFlush("C:\\Users\\neals\\Downloads\\new 1.sql");
+    }
+
+    @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
         // In TCP/IP, Netty reads the data sent from a peer into a ByteBuf.
-        CsvInfo m = (CsvInfo) msg;
-        System.out.println(m);
+        if(msg instanceof String) {
+            System.out.print(msg);
+        } else {
+            ByteBuf m = (ByteBuf) msg;
+            try {
+                while (m.isReadable()) {
+                    System.out.print((char) m.readByte());
+                    System.out.flush();
+                }
+            } finally {
+                m.release();
+            }
+        }
+
         ctx.close();
     }
 

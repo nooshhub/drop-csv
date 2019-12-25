@@ -1,20 +1,34 @@
 package csv.server;
 
 import io.netty.bootstrap.ServerBootstrap;
-import io.netty.channel.ChannelFuture;
-import io.netty.channel.ChannelInitializer;
-import io.netty.channel.ChannelOption;
-import io.netty.channel.EventLoopGroup;
+import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
+import io.netty.handler.codec.LineBasedFrameDecoder;
+import io.netty.handler.codec.string.StringDecoder;
+import io.netty.handler.codec.string.StringEncoder;
+import io.netty.handler.logging.LogLevel;
+import io.netty.handler.logging.LoggingHandler;
+import io.netty.handler.ssl.SslContext;
+import io.netty.handler.ssl.SslContextBuilder;
+import io.netty.handler.ssl.util.SelfSignedCertificate;
+import io.netty.handler.stream.ChunkedWriteHandler;
+import io.netty.util.CharsetUtil;
+
+import javax.net.ssl.SSLException;
+import java.security.cert.CertificateException;
 
 /**
+ * Server that accept the path of a file an echo back its content.
+ *
  * @author Neal Shan
  * @since 0.0.1
  */
 public class CsvServer {
-    private int port;
+
+    static final boolean SSL = System.getProperty("ssl") != null;
+    private int port = Integer.parseInt(System.getProperty("port", SSL ? "8992" : "8088"));
 
     public CsvServer(int port) {
         this.port = port;
@@ -31,21 +45,43 @@ public class CsvServer {
      * How many Threads are used and how they are mapped to the created Channels depends on the EventLoopGroup
      * implementation and may be even configurable via a constructor.
      */
-    private void run() throws InterruptedException {
+    private void run() throws InterruptedException, CertificateException, SSLException {
+
+        // configure SSL
+        final SslContext sslCtx;
+        if(SSL) {
+            SelfSignedCertificate ssc = new SelfSignedCertificate();
+            sslCtx = SslContextBuilder.forServer(ssc.certificate(), ssc.privateKey()).build();
+        } else {
+            sslCtx = null;
+        }
+
+        // configure the server
         EventLoopGroup boosGroup = new NioEventLoopGroup();
         EventLoopGroup workerGroup = new NioEventLoopGroup();
         try {
             ServerBootstrap b = new ServerBootstrap();
             b.group(boosGroup, workerGroup)
                     .channel(NioServerSocketChannel.class) // used to instantiate a new Channel to accept incoming connections.
+                    .option(ChannelOption.SO_BACKLOG, 128) // boss
+                    .handler(new LoggingHandler(LogLevel.INFO))
+//                    .childOption(ChannelOption.SO_KEEPALIVE, true) //worker
                     .childHandler(new ChannelInitializer<SocketChannel>() {
-
                         protected void initChannel(SocketChannel ch) throws Exception {
-                            ch.pipeline().addLast(new CsvInfoEncoder(), new CsvServerHandler());
+                            ChannelPipeline pipeline = ch.pipeline();
+                            if(sslCtx != null) {
+                                pipeline.addLast(sslCtx.newHandler(ch.alloc()));
+                            }
+                            pipeline.addLast(
+                                    new StringEncoder(CharsetUtil.UTF_8),
+                                    new StringDecoder(CharsetUtil.UTF_8),
+                                    new LineBasedFrameDecoder(8192),
+                                    new ChunkedWriteHandler(),
+                                    new CsvServerHandler()
+                            );
                         }
                     })
-                    .option(ChannelOption.SO_BACKLOG, 128) // boss
-                    .childOption(ChannelOption.SO_KEEPALIVE, true); //worker
+            ;
 
             // bind and start to accept inconming connections
             ChannelFuture f = b.bind(port).sync();
@@ -60,7 +96,7 @@ public class CsvServer {
         }
     }
 
-    public static void main(String[] args) throws InterruptedException {
+    public static void main(String[] args) throws InterruptedException, CertificateException, SSLException {
         new CsvServer(8088).run();
     }
 }

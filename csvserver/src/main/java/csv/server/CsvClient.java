@@ -1,13 +1,13 @@
 package csv.server;
 
 import io.netty.bootstrap.Bootstrap;
-import io.netty.channel.ChannelFuture;
-import io.netty.channel.ChannelInitializer;
-import io.netty.channel.ChannelOption;
-import io.netty.channel.EventLoopGroup;
+import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
+import io.netty.handler.codec.string.StringDecoder;
+import io.netty.handler.codec.string.StringEncoder;
+import io.netty.util.CharsetUtil;
 
 /**
  * @author Neal Shan
@@ -28,13 +28,18 @@ public class CsvClient {
                     .option(ChannelOption.SO_KEEPALIVE, true)
                     .handler(new ChannelInitializer<SocketChannel>() {
                         protected void initChannel(SocketChannel ch) throws Exception {
-                            ch.pipeline().addLast(new CsvInfoDecoder(), new CsvClientHandler());
+                            ChannelPipeline pipeline = ch.pipeline();
+                            pipeline.addLast(
+                                    new StringEncoder(CharsetUtil.UTF_8),
+                                    new StringDecoder(CharsetUtil.UTF_8),
+                                    new CsvClientHandler()
+                            );
                         }
                     });
 
-            // start the client and wait until connection is closed
-            ChannelFuture f = b.connect(host, port).sync();
-            f.channel().closeFuture().sync();
+            // start the clientwait until connection is closed
+            b.connect(host, port).sync().channel().closeFuture().sync();
+
         } finally {
             group.shutdownGracefully();
         }

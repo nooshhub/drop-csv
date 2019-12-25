@@ -1,13 +1,10 @@
 package csv.server;
 
-import io.netty.buffer.ByteBuf;
-import io.netty.buffer.Unpooled;
-import io.netty.channel.ChannelFuture;
-import io.netty.channel.ChannelFutureListener;
-import io.netty.channel.ChannelHandlerContext;
-import io.netty.channel.ChannelInboundHandlerAdapter;
-import io.netty.util.CharsetUtil;
-import io.netty.util.ReferenceCountUtil;
+import io.netty.channel.*;
+import io.netty.handler.ssl.SslHandler;
+import io.netty.handler.stream.ChunkedFile;
+
+import java.io.RandomAccessFile;
 
 /**
  * @author Neal Shan
@@ -16,19 +13,50 @@ import io.netty.util.ReferenceCountUtil;
 public class CsvServerHandler extends ChannelInboundHandlerAdapter {
 
     @Override
-    public void channelActive(final ChannelHandlerContext ctx) throws Exception {
-        final ChannelFuture f = ctx.writeAndFlush(new CsvInfo());
-        f.addListener(ChannelFutureListener.CLOSE);
+    public void channelActive(ChannelHandlerContext ctx) throws Exception {
+        ctx.writeAndFlush("HELLO: type the path of the file to retrieve.\n");
     }
 
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
-        ctx.writeAndFlush(msg);
+        System.out.println("Typed path: " + msg);
+        RandomAccessFile raf = null;
+        long length = -1;
+        try {
+            raf = new RandomAccessFile((String) msg, "r");
+            length = raf.length();
+        } catch (Exception e) {
+            ctx.writeAndFlush("ERR: " + e.getClass().getSimpleName() + ": " + e.getMessage() + "\n");
+            return;
+        } finally {
+            if (length < 0 && raf != null) {
+                raf.close();
+            }
+        }
+
+        ctx.write("OK: " + raf.length() + "\n");
+
+        if (ctx.pipeline().get(SslHandler.class) == null) {
+            // SSL not enabled - can use zero-copy file transfer
+            ctx.write(new DefaultFileRegion(raf.getChannel(), 0, length));
+        } else {
+            // SSL enabled - can not use zero-copy transfer
+            ctx.write(new ChunkedFile(raf));
+        }
+        ctx.writeAndFlush("\n");
     }
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
-        cause.printStackTrace(); // TODO: log it
-        ctx.close();
+        cause.printStackTrace();
+
+        if (ctx.channel().isActive()) {
+            ctx.writeAndFlush("ERR: " +
+                    cause.getClass().getSimpleName() + ":" +
+                    cause.getMessage() + "\n")
+                    .addListener(ChannelFutureListener.CLOSE)
+            ;
+        }
     }
+
 }
