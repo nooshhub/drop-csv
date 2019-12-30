@@ -1,4 +1,4 @@
-package csv.server;
+package csv.server.sample.file;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;

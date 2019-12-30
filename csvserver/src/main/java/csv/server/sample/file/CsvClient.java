@@ -1,4 +1,4 @@
-package csv.server;
+package csv.server.sample.file;
 
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.*;
