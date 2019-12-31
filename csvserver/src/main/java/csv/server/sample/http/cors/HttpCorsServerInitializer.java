@@ -61,7 +61,7 @@ public class HttpCorsServerInitializer extends ChannelInitializer<SocketChannel>
     protected void initChannel(SocketChannel ch) throws Exception {
         CorsConfig corsConfig = CorsConfigBuilder
                 //.forAnyOrigin()
-                .forOrigin("http://localhost:8088") //TODO: ??
+                .forOrigin("http://asd.com:8088") //TODO: ??
                 .allowedRequestHeaders("custom-request-header")
                 .exposeHeaders("custom-response-header")
                 .allowNullOrigin()

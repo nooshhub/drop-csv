@@ -17,7 +17,7 @@
         <script>
             function simpleGetRequest() {
                 var xhr = new XMLHttpRequest();
-                xhr.open('GET', 'http://asd.com:8088/cors');
+                xhr.open('GET', 'http://qwe.com:8088/cors');
                 // Uncomment to force a CORS preflight request.
                 xhr.setRequestHeader('custom-request-header', 'dummy value');
                 xhr.onerror = function() {
@@ -35,6 +35,7 @@
                     var el = getTextAreaElement();
                     el.value = el.value + '\n' + newData;
                 }
+				xhr.withCredentials = true;
                 xhr.send();
             }
         </script>
